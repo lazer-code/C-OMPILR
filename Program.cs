@@ -1,7 +1,8 @@
 ﻿class Entry
 {
     public static void Main(string[] args)
-    {        
+    {     
+        #region sample tree creation   
         TokenTreeNode tt = new TokenTreeNode(new Token(TokenType.Identifier, "main"));
         TokenTreeNode newHead = tt.AddChild(new Token(TokenType.Identifier, "a"));
         
@@ -26,7 +27,8 @@
         
         newHead = tt.AddChild(new Token(TokenType.Keyword, "return"));
         newHead.AddChild(new Token(TokenType.Number, "10"));
-
+        #endregion
+        
         Synthesizer s = new Synthesizer(tt);
         s.Synthesize();
     }
