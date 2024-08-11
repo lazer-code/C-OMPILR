@@ -10,18 +10,7 @@ class Synthesizer
 
     public void Synthesize()
     {
-        Dictionary<string, int> variableLocations = new();
-
-        List<string> variables = Helper.extractVariableNames(tree);
-        variables.ForEach(i => Console.WriteLine(i));
-        variableLocations = GenerateASMLocations(variables.ToArray());
-
-        foreach (var variable in variableLocations)
-        {
-            Console.WriteLine(string.Format("{0} : {1}", variable.Key, variable.Value));
-        }
-
-        PrintTree(tree);
+        Synthesize(tree);
     }
 
     private static Dictionary<string, int> GenerateASMLocations(string[] variables)
@@ -39,11 +28,17 @@ class Synthesizer
 
     public static void Synthesize(TokenTreeNode tokenTree)
     {
-        // NAME | OFFSET
         Dictionary<string, int> variableLocations = new();
-        Console.WriteLine("getting variables");
+
         List<string> variables = Helper.extractVariableNames(tokenTree);
-        Console.WriteLine(variables.ToArray().ToString());
+        variables.ForEach(i => Console.WriteLine(i));
+        variableLocations = GenerateASMLocations(variables.ToArray());
+
+        foreach (var variable in variableLocations)
+        {
+            Console.WriteLine(string.Format("{0} : {1}", variable.Key, variable.Value));
+        }
+
         PrintTree(tokenTree);
     }
 
