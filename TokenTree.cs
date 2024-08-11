@@ -1,20 +1,6 @@
-/*
-    Why do we need the "TockenType" enum?
-        The "TockenType" enum defines every possible type of each tocken in the tockenlist.
-
-        Here is a list for each type we support and which keywords coincide with its purpose.
-         - Operator: + - * /
-         - Parenthesis: (, )
-         - Brace: {, }
-         - Bracket: [, ]
-         - Semicolon: ;
-         - Comma: ,
-         - Dot: .
-         - Keyword: if, else, while, for, return
-*/
 public enum TokenType
 {
-    Operator, Parenthesis, Brace, Bracket, Semicolon, Comma, Dot, Keyword, Number, String, Char, Identifier, Comment, LogicalAnd, LogicalOr, LogicalNot, Equal, NotEqual, LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual, Assignment, BitwiseAnd, BitwiseOr, BitwiseXor, BitwiseNot, LeftShift, RightShift, EOF, Unknown
+    Operator, Parenthesis, Brace, Bracket, Semicolon, Comma, Dot, Keyword, Number, String, Char, Identifier, Comment, LogicalAnd, LogicalOr, LogicalNot, Equal, NotEqual, LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual, Assignment, BitwiseAnd, BitwiseOr, BitwiseXor, BitwiseNot, LeftShift, RightShift, COF, EOF, Unknown
 }
 
 
