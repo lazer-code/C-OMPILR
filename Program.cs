@@ -1,2 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿class Entry
+{
+    public static void Main(string[] args)
+    {
+        Console.WriteLine("hello, world!");
+        TokenTree tt = new(null, new Token(TokenType.Operator, "+"));
+        tt.AddChild(new Token(TokenType.Number, "10"));
+        
+        Synthesizer s = new Synthesizer(tt);
+        s.synthesize();
+    }
+}
