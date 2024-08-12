@@ -28,6 +28,7 @@ class Synthesizer
         return this.varOffsets;
     }
 
+
     public void Synthesize()
     {
         Dictionary<string, int> variableLocations = new();
@@ -37,6 +38,7 @@ class Synthesizer
         variableLocations = GenerateASMLocations(variables.ToArray());
         generateOutputFile("test.asm");
 
+        Console.WriteLine("");
         foreach (var variable in variableLocations)
         {
             Console.WriteLine(string.Format("{0} : {1}", variable.Key, variable.Value));
@@ -79,12 +81,19 @@ class Synthesizer
 
     private void generateOutputFile(string outputFileName, TokenTreeNode tk)
     {
-        Console.Write("" + GenerateOpcodes(tk.value));
+        if(tk.value.Type != TokenType.GreaterThan)
+            Console.Write("" + GenerateOpcodes(tk.value));
+            // TODO: find a way to do this that isn't hard coding an exception for this case 
+
         foreach (var child in tk.Children)
         {
             Console.Write(" ");
             this.generateOutputFile(outputFileName, child);
         }
+        if(tk.value.Type == TokenType.GreaterThan)
+            Console.Write(" " + GenerateOpcodes(tk.value));
+            // TODO: find a way to do this that isn't hard coding an exception for this case 
+
     }
 
     public void PrintTree(TokenTreeNode node, int level = 0)
