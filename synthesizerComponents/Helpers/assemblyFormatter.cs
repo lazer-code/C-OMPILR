@@ -7,6 +7,10 @@ namespace cOMPILR.POC.TextFormatters
 
 		// all the single operand instruction in asm, list needs changing 
 		private static readonly List<string> singleParameterInstructions = ["jg", "jne", "jb", "jbe", "jge"];
+		
+		// all the no operand instructions in asm, list also needs change
+		private static readonly List<string> noParameterInstructions = ["ret", "dex"];
+		
 		public static string FormatAssembly(string assemblyCode)
 		{
 			var instructions = assemblyCode.Split(' ');
@@ -43,6 +47,11 @@ namespace cOMPILR.POC.TextFormatters
 					{
 						// if its a single operand instruction, skip the first operand
 						i++;
+					}
+					if(noParameterInstructions.Contains(instruction))
+					{
+						formattedCode.Append('\n');
+						i+=2;
 					}
 					i++;
 				}

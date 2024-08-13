@@ -1,3 +1,4 @@
+using System.Data.Common;
 using cOMPILR.POC.TextFormatters;
 
 partial class Synthesizer
@@ -79,6 +80,11 @@ partial class Synthesizer
         if(tk.value.Type == TokenType.GreaterThan)
             str += " " + GenerateOpcodes(tk.value);
             // TODO: find a way to do this that isn't hard coding an exception for this case 
+
+        if(tk.value.Type == TokenType.Keyword && tk.value.Value == "return")
+        {
+            str += " ret";
+        }
 
         // return the string with all the instructions
         return str;
