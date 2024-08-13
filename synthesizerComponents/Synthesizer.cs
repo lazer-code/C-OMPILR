@@ -2,8 +2,9 @@ using System.Globalization;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Principal;
+using cOMPILR.POC.TextFormatters;
 
-class Synthesizer
+partial class Synthesizer
 {
     TokenTreeNode tree;
     Dictionary<string, int> varOffsets;
@@ -36,7 +37,8 @@ class Synthesizer
         List<string> variables = Helper.extractVariableNames(this.tree);
         variables.ForEach(i => Console.WriteLine(i));
         variableLocations = GenerateASMLocations(variables.ToArray());
-        generateOutputFile("test.asm");
+        string res = generateOutputFile("test.asm");
+        Console.WriteLine(res);
 
         Console.WriteLine("");
         foreach (var variable in variableLocations)
@@ -53,7 +55,7 @@ class Synthesizer
         {
             TokenType.Assignment => "mov",
             TokenType.Identifier => "[ds+" + this.varOffsets[tk.Value] + "]",
-            TokenType.Number => "" + tk.Value,
+            TokenType.Number => "$" + tk.Value,
             TokenType.Operator => tk.Value switch 
             {
                 "+" => "add",
@@ -64,37 +66,15 @@ class Synthesizer
             TokenType.Keyword => tk.Value switch
             {
                 "if" => "cmp",
-                "return" => "mov eax,",
+                "return" => "mov eax",
                 _ => throw new Exception("unknown keyword" + tk.Value)
             },
             TokenType.COF => "setJumpAddress",
             TokenType.Body => "setJumpAddress",
-            _ => "invalid line ( for now )",
-
+            _ => throw new Exception("invalid line ( for now )")
         };
     }
 
-    private void generateOutputFile(string outputFileName)
-    {
-        generateOutputFile(outputFileName, this.tree);
-    }
-
-    private void generateOutputFile(string outputFileName, TokenTreeNode tk)
-    {
-        if(tk.value.Type != TokenType.GreaterThan)
-            Console.Write("" + GenerateOpcodes(tk.value));
-            // TODO: find a way to do this that isn't hard coding an exception for this case 
-
-        foreach (var child in tk.Children)
-        {
-            Console.Write(" ");
-            this.generateOutputFile(outputFileName, child);
-        }
-        if(tk.value.Type == TokenType.GreaterThan)
-            Console.Write(" " + GenerateOpcodes(tk.value));
-            // TODO: find a way to do this that isn't hard coding an exception for this case 
-
-    }
 
     public void PrintTree(TokenTreeNode node, int level = 0)
     {
