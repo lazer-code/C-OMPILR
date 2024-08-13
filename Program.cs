@@ -35,6 +35,6 @@
         #endregion
         
         Synthesizer s = new Synthesizer(tt);
-        s.Synthesize();
+        s.Synthesize("test.S");
     }
 }

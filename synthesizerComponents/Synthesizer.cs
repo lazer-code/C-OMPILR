@@ -29,7 +29,7 @@ partial class Synthesizer
         return this.varOffsets;
     }
 
-    public void Synthesize()
+    public void Synthesize(string output)
     {
         Dictionary<string, int> variableLocations = new();
 
@@ -39,7 +39,7 @@ partial class Synthesizer
         variableLocations = GenerateASMLocations(variables.ToArray());
      
         // generate the assembly code and write it to a file and the screen
-        string res = generateOutputFile("test.asm");
+        string res = generateOutputFile(output);
         Console.WriteLine(res);
 
         // print the variables and their offset to have as a reference
