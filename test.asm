@@ -1,4 +1,4 @@
-[ds+8]
+_main:
 mov [ds+16], $25
 mov [ds+24], $28
 cmp [ds+16], [ds+24]
