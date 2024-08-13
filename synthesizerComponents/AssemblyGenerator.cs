@@ -18,21 +18,21 @@ partial class Synthesizer
         {
             TokenType.EOF => "",
             TokenType.Assignment => "movl",
-            TokenType.Identifier_var => this.varOffsets[tk.Value] + "(%esp)",
-            TokenType.Identifier_func => "_" + tk.Value + ":",
-            TokenType.Number => "$" + tk.Value,
+            TokenType.Identifier_var => $"{this.varOffsets[tk.Value]}(%esp)",
+            TokenType.Identifier_func => $"_{tk.Value}:",
+            TokenType.Number => $"${tk.Value}",
             TokenType.Operator => tk.Value switch 
             {
                 "+" => "add",
                 "*" => "mul",
-                _ => throw new Exception("unknown operator " + tk.Value + "did you forget to implement it?"),
+                _ => throw new Exception($"unknown operator{tk.Value}did you forget to implement it?"),
             },
             TokenType.GreaterThan => "jg",
             TokenType.Keyword => tk.Value switch
             {
-                "if" => "cmp",
-                "return" => "mov eax",
-                _ => throw new Exception("unknown keyword" + tk.Value)
+                "if" => "",
+                "return" => "movl",
+                _ => throw new Exception($"unknown keyword{tk.Value}")
             },
             TokenType.Body => getBodyName(),
             _ => throw new Exception("invalid line ( for now )")
@@ -67,7 +67,7 @@ partial class Synthesizer
 
             if(tk.value.Type == TokenType.Keyword && tk.value.Value == "return")
             {
-                str += " ret";
+                str += " %eax ret";
             }
 
         }
@@ -80,7 +80,7 @@ partial class Synthesizer
         }
         return str;
     }
-
+    
     /// <summary>
     ///  recursively turn the tokens to assembly code and write it to a file
     /// </summary>
@@ -88,13 +88,16 @@ partial class Synthesizer
     /// <returns></returns>
     private string generateOutputFile(string outputFileName)
     {
+        string str = "";
+        
         // get the assembly
-        string str = generateOutputFile(this.tree);
+        str += generateOutputFile(this.tree);
 
+        // get the functions
         str += addBodies(this.tree);
 
         // format it and write it to a file
-        string formattedCode = AssemblyFormatter.FormatAssembly(str);
+        string formattedCode = ".global _main\n\n" + AssemblyFormatter.FormatAssembly(str);
         File.WriteAllText(outputFileName, formattedCode);
 
         // return the valid assembly as a string, just for fun
@@ -105,7 +108,7 @@ partial class Synthesizer
     /// recursively turn the tokens to opcodes and operands
     /// </summary>
     /// <param name="tk">the token tree root</param>
-    /// <returns>a string with all opcodes (unformatted ) </returns>
+    /// <returns>a string with all opcodes ( unformatted ) </returns>
     private string generateOutputFile(TokenTreeNode tk)
     {
         string str = "";
@@ -120,8 +123,12 @@ partial class Synthesizer
             // recursively traverse the tree and add all the instructions to a string 
             foreach (var child in tk.Children)
             {
-                str += " ";
-                str += this.generateOutputFile(child);
+                if(tk.value.Type != TokenType.GreaterThan)
+                {
+                    str += " ";
+                    str += this.generateOutputFile(child);
+                }
+                
             }
         }
         else
@@ -131,15 +138,29 @@ partial class Synthesizer
 
         // if the instruction is greater than, add it after its children
         if(tk.value.Type == TokenType.GreaterThan)
+        {
+            str += HandleComparisonOperands(tk.Children);
             str += " " + GenerateOpcodes(tk.value);
+        }
             // TODO: find a way to do this that isn't hard coding an exception for this case 
 
         if(tk.value.Type == TokenType.Keyword && tk.value.Value == "return")
         {
-            str += " ret";
+            str += " %eax ret";
         }
 
         // return the string with all the instructions
         return str;
     }
+
+    private string HandleComparisonOperands(List<TokenTreeNode> children)
+    {
+        var left = children[0];
+        var right = children[1];
+        var rightOffset = this.varOffsets[right.value.Value];
+        var leftOffset = this.varOffsets[left.value.Value];
+
+        return $"movl {rightOffset}(%esp) %eax cmpl {leftOffset}(%esp) %eax";
+    }
+
 }

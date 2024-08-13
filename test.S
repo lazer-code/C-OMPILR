@@ -1,11 +1,14 @@
+.global _main
+
 _main:
 
-movl 16(%esp), $25
-movl 24(%esp), $28
-cmp 24(%esp), 16(%esp)
+movl $25, 16(%esp)
+movl $28, 24(%esp)
+movl 16(%esp), %eax
+cmpl 24(%esp), %eax
 jg L1
-mov eax, $10
+movl $10, %eax
 ret 
 L1: 
-mov eax, $15
+movl $15, %eax
 ret 
