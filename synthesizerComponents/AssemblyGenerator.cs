@@ -17,8 +17,8 @@ partial class Synthesizer
         return tk.Type switch
         {
             TokenType.EOF => "",
-            TokenType.Assignment => "mov",
-            TokenType.Identifier_var => "[ds+" + this.varOffsets[tk.Value] + "]",
+            TokenType.Assignment => "movl",
+            TokenType.Identifier_var => this.varOffsets[tk.Value] + "(%esp)",
             TokenType.Identifier_func => "_" + tk.Value + ":",
             TokenType.Number => "$" + tk.Value,
             TokenType.Operator => tk.Value switch 
