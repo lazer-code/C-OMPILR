@@ -2,7 +2,7 @@
 
 _main:
 
-movl $25, 16(%esp)
+movl $29, 16(%esp)
 movl $28, 24(%esp)
 movl 16(%esp), %eax
 cmpl 24(%esp), %eax

@@ -6,7 +6,7 @@
         TokenTreeNode tt = new TokenTreeNode(new Token(TokenType.Identifier_func, "main"));
         
         TokenTreeNode newHead = tt.AddChild(new Token(TokenType.Assignment, "="));
-        newHead.AddChild(new Token(TokenType.Number, "25"));
+        newHead.AddChild(new Token(TokenType.Number, "29"));
         newHead.AddChild(new Token(TokenType.Identifier_var, "a"));
 
         //newHead = newHead.AddChild(new Token(TokenType.Operator, "+"));
