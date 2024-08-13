@@ -1,10 +1,3 @@
-using System.Globalization;
-using System.Net.Security;
-using System.Security.Cryptography;
-using System.Security.Principal;
-using cOMPILR.POC.TextFormatters;
-
-
 /// <summary>
 /// for the actual assembly generation part of this class, check out AssemblyGenerator.cs
 /// </summary>
