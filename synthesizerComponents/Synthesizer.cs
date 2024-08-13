@@ -4,6 +4,10 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using cOMPILR.POC.TextFormatters;
 
+
+/// <summary>
+/// for the actual assembly generation part of this class, check out AssemblyGenerator.cs
+/// </summary>
 partial class Synthesizer
 {
     TokenTreeNode tree;
@@ -16,6 +20,7 @@ partial class Synthesizer
 
     private Dictionary<string, int> GenerateASMLocations(string[] variables)
     {
+        // turn all of the identifiers to offsets
         Dictionary<string, int> res = new();
         int lastLocation = 0;
 
@@ -29,17 +34,20 @@ partial class Synthesizer
         return this.varOffsets;
     }
 
-
     public void Synthesize()
     {
         Dictionary<string, int> variableLocations = new();
 
+        // extract variables and assign them locations
         List<string> variables = Helper.extractVariableNames(this.tree);
         variables.ForEach(i => Console.WriteLine(i));
         variableLocations = GenerateASMLocations(variables.ToArray());
+     
+        // generate the assembly code and write it to a file and the screen
         string res = generateOutputFile("test.asm");
         Console.WriteLine(res);
 
+        // print the variables and their offset to have as a reference
         Console.WriteLine("");
         foreach (var variable in variableLocations)
         {
@@ -49,33 +57,11 @@ partial class Synthesizer
         PrintTree(this.tree);
     }
 
-    private string GenerateOpcodes(Token tk)
-    {
-        return tk.Type switch
-        {
-            TokenType.Assignment => "mov",
-            TokenType.Identifier => "[ds+" + this.varOffsets[tk.Value] + "]",
-            TokenType.Number => "$" + tk.Value,
-            TokenType.Operator => tk.Value switch 
-            {
-                "+" => "add",
-                "*" => "mul",
-                _ => throw new Exception("unknown operator " + tk.Value + "did you forget to implement it?"),
-            },
-            TokenType.GreaterThan => "jg",
-            TokenType.Keyword => tk.Value switch
-            {
-                "if" => "cmp",
-                "return" => "mov eax",
-                _ => throw new Exception("unknown keyword" + tk.Value)
-            },
-            TokenType.COF => "setJumpAddress",
-            TokenType.Body => "setJumpAddress",
-            _ => throw new Exception("invalid line ( for now )")
-        };
-    }
-
-
+    /// <summary>
+    /// recursively prints the tree and all of its values
+    /// </summary>
+    /// <param name="node">tree root</param>
+    /// <param name="level">the tab amount</param>
     public void PrintTree(TokenTreeNode node, int level = 0)
     {
         Console.WriteLine("" + new string('\t', level) + node.value.Type + ":" + node.value.Value);

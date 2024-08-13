@@ -1,9 +1,15 @@
+/// <summary>
+/// types of tokens supported by our synthesizer
+/// </summary>
 public enum TokenType
 {
     Operator, Parenthesis, Brace, Bracket, Semicolon, Comma, Dot, Keyword, Number, String, Char, Identifier, Comment, LogicalAnd, LogicalOr, LogicalNot, Equal, NotEqual, LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual, Assignment, BitwiseAnd, BitwiseOr, BitwiseXor, BitwiseNot, LeftShift, RightShift, COF, EOF, Unknown, Body
 }
 
 
+/// <summary>
+/// token object, has value and type
+/// </summary>
 struct Token
 {
     public TokenType Type{get;}
