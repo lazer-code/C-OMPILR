@@ -22,7 +22,7 @@ class Helper
     private static List<string> extractVariableNames(TokenTreeNode head, List<string> names)
     {
         // the boolean was created just for me to be able to not use a if else function and still be able to call the function
-        bool added = head.value.Type == TokenType.Identifier ? names.AddIfNotIncluded(head.value.Value) : false;
+        bool added = head.value.Type == TokenType.Identifier_var || head.value.Type == TokenType.Identifier_func ? names.AddIfNotIncluded(head.value.Value) : false;
 
         // recuresively traverse the entire tree looking for identifier
         foreach (var child in head.Children)

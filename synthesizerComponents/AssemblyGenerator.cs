@@ -3,7 +3,8 @@ using cOMPILR.POC.TextFormatters;
 
 partial class Synthesizer
 {
-
+    List<string> conditionsBodies = new();
+    
     /// <summary>
     /// turns a token to an assembly command
     /// </summary>
@@ -15,8 +16,10 @@ partial class Synthesizer
         // turn the token to a asm operation, we prolly need a better way for doing this
         return tk.Type switch
         {
+            TokenType.EOF => "",
             TokenType.Assignment => "mov",
-            TokenType.Identifier => "[ds+" + this.varOffsets[tk.Value] + "]",
+            TokenType.Identifier_var => "[ds+" + this.varOffsets[tk.Value] + "]",
+            TokenType.Identifier_func => "_" + tk.Value + ":",
             TokenType.Number => "$" + tk.Value,
             TokenType.Operator => tk.Value switch 
             {
@@ -31,10 +34,51 @@ partial class Synthesizer
                 "return" => "mov eax",
                 _ => throw new Exception("unknown keyword" + tk.Value)
             },
-            TokenType.COF => "setJumpAddress",
-            TokenType.Body => "setJumpAddress",
+            TokenType.Body => getBodyName(),
             _ => throw new Exception("invalid line ( for now )")
         };
+    }
+
+    string getBodyName()
+    {
+        return "L" + (conditionsBodies.Count + 1);
+    }
+
+    string addBodies(TokenTreeNode tk, bool isCurrentlyInABody = false, string str = "", int bodyCount = 0)
+    {
+        
+        if(tk.value.Type == TokenType.Body || isCurrentlyInABody)
+        {
+            bodyCount++;
+            if(!isCurrentlyInABody)
+            {
+                str += "L" + bodyCount + ": ";
+                isCurrentlyInABody = true;
+            }
+            else
+            {
+                str = " " + GenerateOpcodes(tk.value);
+            }
+
+            foreach (var child in tk.Children)
+            {
+                str += this.addBodies(child, true, str, bodyCount);
+            }
+
+            if(tk.value.Type == TokenType.Keyword && tk.value.Value == "return")
+            {
+                str += " ret";
+            }
+
+        }
+        else
+        {
+            foreach (var child in tk.Children)
+            {
+                str = this.addBodies(child, false, str, bodyCount);
+            }
+        }
+        return str;
     }
 
     /// <summary>
@@ -46,6 +90,8 @@ partial class Synthesizer
     {
         // get the assembly
         string str = generateOutputFile(this.tree);
+
+        str += addBodies(this.tree);
 
         // format it and write it to a file
         string formattedCode = AssemblyFormatter.FormatAssembly(str);
@@ -69,11 +115,18 @@ partial class Synthesizer
             str = GenerateOpcodes(tk.value); // turn the instruction to a opcode
             // TODO: find a way to do this that isn't hard coding an exception for this case 
         
-        // recursively traverse the tree and add all the instructions to a string 
-        foreach (var child in tk.Children)
+        if(tk.value.Type != TokenType.Body)
+        {
+            // recursively traverse the tree and add all the instructions to a string 
+            foreach (var child in tk.Children)
+            {
+                str += " ";
+                str += this.generateOutputFile(child);
+            }
+        }
+        else
         {
             str += " ";
-            str += this.generateOutputFile(child);
         }
 
         // if the instruction is greater than, add it after its children

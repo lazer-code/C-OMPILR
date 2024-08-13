@@ -6,7 +6,7 @@ namespace cOMPILR.POC.TextFormatters
 	{
 
 		// all the single operand instruction in asm, list needs changing 
-		private static readonly List<string> singleParameterInstructions = ["jg", "jne", "jb", "jbe", "jge"];
+		private static readonly List<string> singleParameterInstructions = ["jg", "jne", "je", "jb", "jbe", "jge"];
 		
 		// all the no operand instructions in asm, list also needs change
 		private static readonly List<string> noParameterInstructions = ["ret", "dex"];
@@ -52,6 +52,11 @@ namespace cOMPILR.POC.TextFormatters
 					{
 						formattedCode.Append('\n');
 						i+=2;
+					}
+					if(instruction.Contains(":"))
+					{
+						i+=2;
+						formattedCode.Append('\n');
 					}
 					i++;
 				}

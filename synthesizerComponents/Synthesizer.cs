@@ -5,6 +5,8 @@ partial class Synthesizer
 {
     TokenTreeNode tree;
     Dictionary<string, int> varOffsets;
+
+    uint currentConditionalId = 0;
     public Synthesizer(TokenTreeNode tokenTree)
     {
         this.tree = tokenTree;
