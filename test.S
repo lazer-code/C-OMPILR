@@ -10,11 +10,13 @@ cmpl 24(%esp), %eax
 jg L1
 movl 24(%esp), %eax
 cmpl 32(%esp), %eax
-jg L1
+jg L2
 movl $10, %eax
 ret 
 L1: 
 movl $15, %eax
-retL1: 
+ret
+L2: 
 movl $17, %eax
-ret 
+ret
+ 

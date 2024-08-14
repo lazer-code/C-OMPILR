@@ -41,7 +41,8 @@ partial class Synthesizer
 
     string getBodyName()
     {
-        return "L" + (conditionsBodies.Count + 1);
+        conditionsBodies.Add("" + (conditionsBodies.Count + 1));
+        return "L" + conditionsBodies.Count;
     }
 
     string addBodies(TokenTreeNode tk, bool isCurrentlyInABody = false, string str = "", int bodyCount = 0)
@@ -52,7 +53,9 @@ partial class Synthesizer
             bodyCount++;
             if(!isCurrentlyInABody)
             {
-                str += "L" + bodyCount + ": ";
+                string str1 = conditionsBodies[0];
+                conditionsBodies.RemoveAt(0);
+                str += "L" + str1 + ": ";
                 isCurrentlyInABody = true;
             }
             else
@@ -67,7 +70,7 @@ partial class Synthesizer
 
             if(tk.value.Type == TokenType.Keyword && tk.value.Value == "return")
             {
-                str += " %eax ret";
+                str += " %eax ret\n";
             }
 
         }
