@@ -3,17 +3,17 @@ using cOMPILR.POC.TextFormatters;
 
 partial class Synthesizer
 {
-    List<string> conditionsBodies = new();
+    List<string> bodies = [];
     
     /// <summary>
-    /// turns a token to an assembly command
+    /// This function turns a token into an assembly command
     /// </summary>
-    /// <param name="tk">the token</param>
-    /// <returns>the assembly command</returns>
-    /// <exception cref="Exception">we currently only support a small number of operands, in case we haven't written something yet an exception will be thrown</exception>
+    /// <param name="tk">The token</param>
+    /// <returns>The assembly command</returns>
+    /// <exception cref="Exception">We currently only support a small number of operands, in case we haven't written something yet an exception will be thrown</exception>
     private string GenerateOpcodes(Token tk)
     {
-        // turn the token to a asm operation, we prolly need a better way for doing this
+        // Turns the token to an assembly operation, we prolly need a better way for doing this
         return tk.Type switch
         {
             TokenType.EOF => "",
@@ -21,30 +21,52 @@ partial class Synthesizer
             TokenType.Identifier_var => $"{this.varOffsets[tk.Value]}(%esp)",
             TokenType.Identifier_func => $"_{tk.Value}:",
             TokenType.Number => $"${tk.Value}",
+            TokenType.Body => GetBodyName(),
+
+            // Comparison operations
+            TokenType.Equal => "je",
+            TokenType.NotEqual => "jne",
+            TokenType.GreaterThan => "jg",
+            TokenType.GreaterThanOrEqual => "jge",
+            TokenType.LessThan => "jl",
+            TokenType.LessThanOrEqual => "jle",
+
+            // Math operators
             TokenType.Operator => tk.Value switch 
             {
                 "+" => "add",
                 "*" => "mul",
+                "-" => "sub",
+                "/" => "div",
                 _ => throw new Exception($"unknown operator{tk.Value}did you forget to implement it?"),
             },
-            TokenType.GreaterThan => "jg",
+
             TokenType.Keyword => tk.Value switch
             {
                 "if" => "",
                 "return" => "movl",
                 _ => throw new Exception($"unknown keyword{tk.Value}")
             },
-            TokenType.Body => getBodyName(),
+
             _ => throw new Exception("invalid line ( for now )")
         };
     }
 
-    string getBodyName()
-    {
-        return "L" + (conditionsBodies.Count + 1);
-    }
+    /// <summary>
+    /// This function returns the name of the current body (conditional or loop)
+    /// </summary>
+    /// <returns>The name of the current bodey</returns>
+    string GetBodyName() => "L" + (bodies.Count + 1);
 
-    string addBodies(TokenTreeNode tk, bool isCurrentlyInABody = false, string str = "", int bodyCount = 0)
+    /// <summary>
+    /// This function adds all bodies in the tree to the .S output file
+    /// </summary>
+    /// <param name="tk">The current token</param>
+    /// <param name="isCurrentlyInABody">If the current token is inside a body</param>
+    /// <param name="str">All previouse bodies</param>
+    /// <param name="bodyCount">The number of the current bodies ready</param>
+    /// <returns></returns>
+    string AddBodies(TokenTreeNode tk, bool isCurrentlyInABody = false, string str = "", int bodyCount = 0)
     {
         
         if(tk.value.Type == TokenType.Body || isCurrentlyInABody)
@@ -55,6 +77,7 @@ partial class Synthesizer
                 str += "L" + bodyCount + ": ";
                 isCurrentlyInABody = true;
             }
+        
             else
             {
                 str = " " + GenerateOpcodes(tk.value);
@@ -62,7 +85,7 @@ partial class Synthesizer
 
             foreach (var child in tk.Children)
             {
-                str += this.addBodies(child, true, str, bodyCount);
+                str += this.AddBodies(child, true, str, bodyCount);
             }
 
             if(tk.value.Type == TokenType.Keyword && tk.value.Value == "return")
@@ -75,26 +98,26 @@ partial class Synthesizer
         {
             foreach (var child in tk.Children)
             {
-                str = this.addBodies(child, false, str, bodyCount);
+                str = this.AddBodies(child, false, str, bodyCount);
             }
         }
         return str;
     }
     
     /// <summary>
-    ///  recursively turn the tokens to assembly code and write it to a file
+    ///  This function recursively turns the tokens to assembly code and write it to a file
     /// </summary>
-    /// <param name="outputFileName"> the file the assembly will be written to </param>
-    /// <returns></returns>
-    private string generateOutputFile(string outputFileName)
+    /// <param name="outputFileName">The name of the output file</param>
+    /// <returns>TODO: LATER</returns>
+    private string GenerateOutputFile(string outputFileName)
     {
         string str = "";
         
         // get the assembly
-        str += generateOutputFile(this.tree);
+        str += GenerateOutputFile(this.tree);
 
         // get the functions
-        str += addBodies(this.tree);
+        str += AddBodies(this.tree);
 
         // format it and write it to a file
         string formattedCode = ".global _main\n\n" + AssemblyFormatter.FormatAssembly(str);
@@ -105,11 +128,11 @@ partial class Synthesizer
     }
 
     /// <summary>
-    /// recursively turn the tokens to opcodes and operands
+    /// This function recursively turns the tokens to opcodes and operands
     /// </summary>
-    /// <param name="tk">the token tree root</param>
-    /// <returns>a string with all opcodes ( unformatted ) </returns>
-    private string generateOutputFile(TokenTreeNode tk)
+    /// <param name="tk">The token tree root</param>
+    /// <returns>A string with all opcodes ( unformatted ) </returns>
+    private string GenerateOutputFile(TokenTreeNode tk)
     {
         string str = "";
 
@@ -126,7 +149,7 @@ partial class Synthesizer
                 if(tk.value.Type != TokenType.GreaterThan)
                 {
                     str += " ";
-                    str += this.generateOutputFile(child);
+                    str += this.GenerateOutputFile(child);
                 }
                 
             }
@@ -153,6 +176,11 @@ partial class Synthesizer
         return str;
     }
 
+    /// <summary>
+    /// This function handles comparison
+    /// </summary>
+    /// <param name="children"></param>
+    /// <returns>The correct comparison syntax</returns>
     private string HandleComparisonOperands(List<TokenTreeNode> children)
     {
         var left = children[0];

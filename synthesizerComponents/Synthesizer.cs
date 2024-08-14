@@ -34,20 +34,36 @@ partial class Synthesizer
         Dictionary<string, int> variableLocations = new();
 
         // extract variables and assign them locations
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine("Variables:");
+        Console.ResetColor();
+
         List<string> variables = Helper.extractVariableNames(this.tree);
         variables.ForEach(i => Console.WriteLine(i));
         variableLocations = GenerateASMLocations(variables.ToArray());
      
         // generate the assembly code and write it to a file and the screen
-        string res = generateOutputFile(output);
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine("\nassembly file:");
+        Console.ResetColor();
+
+        string res = GenerateOutputFile(output);
         Console.WriteLine(res);
 
         // print the variables and their offset to have as a reference
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine("\nTable of addresses:");
+        Console.ResetColor();
+
         Console.WriteLine("");
         foreach (var variable in variableLocations)
         {
             Console.WriteLine(string.Format("{0} : {1}", variable.Key, variable.Value));
         }
+
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine("\nThe tree:");
+        Console.ResetColor();
 
         PrintTree(this.tree);
     }
