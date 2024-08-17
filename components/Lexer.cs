@@ -180,9 +180,7 @@ namespace testCompiler
 					else if (tokens[i].GetValue() == "}" || tokens[i].GetValue().Contains('}'))
 					{
 						blockIndex--;
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                         currentParent = currentParent.Parent;
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                     }
 
 					else if (tokens[i].GetValue() == ")" && blockIndex != 0)

@@ -2,7 +2,8 @@ using testCompiler;
 
 class Parser
 {
-
+    static HashSet<TokenType> conditionsOperators = [TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThan, 
+    TokenType.GreaterThanOrEqual, TokenType.LessThan, TokenType.LessThanOrEqual];
     private static TokenTreeNode? ReorderBlock(TokenTreeNode? node, int bodyId = 0, TokenTreeNode? newTreeHead = null)
     {
         if (node == null)
@@ -17,19 +18,19 @@ class Parser
             if(child.Value.type == TokenType.Identifier_func)
                 child.Value = new(child.Value.GetValue().Split(' ')[1], TokenType.Identifier_func);
 
-            if (child.Value.type == TokenType.GreaterThan)
+            if (conditionsOperators.Contains(child.Value.type))
             {
                 // Create a new node for the greater-than operator
-                TokenTreeNode greaterThanNode = new(child);
+                TokenTreeNode conditionNode = new(child);
 
                 // Add previous and next siblings as children
                 if (i < node.Children.Count - 1)
-                    greaterThanNode.AddChild(node.Children[i + 1]);
+                    conditionNode.AddChild(node.Children[i + 1]);
 
                 if (i > 0)
-                    greaterThanNode.AddChild(node.Children[i - 1]);
+                    conditionNode.AddChild(node.Children[i - 1]);
 
-                newRoot.AddChild(greaterThanNode);
+                newRoot.AddChild(conditionNode);
                 i++; // Skip the next sibling
             }
 
@@ -61,7 +62,7 @@ class Parser
             {
                 if(i != node.Children.Count -1)
                 {
-                    if(node.Children[i+1].Value.type == TokenType.GreaterThan)
+                    if(conditionsOperators.Contains(node.Children[i+1].Value.type))
                     {
 
                     }

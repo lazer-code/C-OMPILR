@@ -6,7 +6,7 @@ namespace cOMPILR.POC.TextFormatters
 	{
 
 		// all the single operand instruction in asm, list needs changing 
-		private static readonly List<string> singleParameterInstructions = ["jg", "jne", "je", "jb", "jbe", "jge"];
+		private static readonly List<string> singleParameterInstructions = ["jg", "jne", "je", "jb", "jbe", "jge", "jl", "jle"];
 		
 		// all the no operand instructions in asm, list also needs change
 		private static readonly List<string> noParameterInstructions = ["ret", "dex"];

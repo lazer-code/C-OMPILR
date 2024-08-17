@@ -6,7 +6,7 @@ namespace testCompiler
 	partial class Synthesizer
 	{
 		List<string> conditionsBodies = [];
-        static HashSet<TokenType> conditions = [TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThan, 
+        static HashSet<TokenType> conditionsOperators = [TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThan, 
 		TokenType.GreaterThanOrEqual, TokenType.LessThan, TokenType.LessThanOrEqual];
 
 		/// <summary>
@@ -122,7 +122,7 @@ namespace testCompiler
 			string str = "";
 
 			// if the instruction is greater than, add it after its children
-			if (!conditions.Contains(tk.Value.type))
+			if (!conditionsOperators.Contains(tk.Value.type))
 				str = GenerateOpcodes(tk.Value); // turn the instruction to a opcode
 												 // TODO: find a way to do this that isn't hard coding an exception for this case 
 
@@ -131,7 +131,7 @@ namespace testCompiler
 				// recursively traverse the tree and add all the instructions to a string 
 				foreach (var child in tk.Children)
 				{
-					if (!conditions.Contains(tk.Value.type))
+					if (!conditionsOperators.Contains(tk.Value.type))
 					{
 						str += " ";
 						str += this.GenerateOutputFile(child);
@@ -144,7 +144,7 @@ namespace testCompiler
 				str += " ";
 
 			// if the instruction is greater than, add it after its children
-			if (conditions.Contains(tk.Value.type))
+			if (conditionsOperators.Contains(tk.Value.type))
 			{
 				str += HandleComparisonOperands(tk.Children);
 				str += " " + GenerateOpcodes(tk.Value);

@@ -6,7 +6,7 @@ int main(void)
     int a = A_VALUE;
     int b = B_VALUE;
     int c = 48;
-    if(a > b)
+    if(a < b)
     {
         return a;
     }
