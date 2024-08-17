@@ -1,0 +1,30 @@
+building a lexer:
+http://infolab.stanford.edu/~ullman/dragon/slides1.pdf
+https://en.wikipedia.org/wiki/Yacc
+https://en.wikipedia.org/wiki/Lex_(software)
+
+building a parser:
+https://www.techtarget.com/searchapparchitecture/definition/parser
+
+code synthesis:
+https://github.com/rui314/chibicc/blob/main/codegen.c
+
+writing a compiler: 
+https://www.egyankosh.ac.in/bitstream/123456789/12146/1/Unit-3.pdf
+https://github.com/rui314/chibicc/tree/main
+https://github.com/larmel/lacc
+https://github.com/gcc-mirror/gcc
+
+optimizations:
+https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=aed8e61236b3125327d7476aef3e1c6b334fdbe4
+https://dl.acm.org/doi/epdf/10.1145/349214.349233
+https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=bd23575283b96045efdcb1a265eb2b73e357c429
+https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=4638e20be94ba6f775b14861228c0783761e92ee
+https://arxiv.org/pdf/2109.08267
+
+seemingly good source of info but signup needed:
+https://ieeexplore.ieee.org/
+https://ieeexplore.ieee.org/xpl/conhome/8475/proceeding
+
+
+Ɛ|3
