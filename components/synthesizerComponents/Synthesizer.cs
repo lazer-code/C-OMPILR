@@ -33,8 +33,13 @@ namespace testCompiler
 			variables.ForEach(i => Console.WriteLine(i));
 			variableLocations = GenerateASMLocations(variables.ToArray());
 
+			Helper.ColourPrint("The Lexer has generated:", ConsoleColor.Blue);
+            PrintTree(this.tree);
+
 			// generate the assembly code and write it to a file and the screen
-			string res = generateOutputFile(output);
+			string res = GenerateOutputFile(output);
+
+			Helper.ColourPrint("The Synthesizer has generated:", ConsoleColor.Blue);
 			Console.WriteLine(res);
 
 			// print the variables and their offset to have as a reference
@@ -42,8 +47,6 @@ namespace testCompiler
 
 			foreach (var variable in variableLocations)
 				Console.WriteLine(string.Format("{0} : {1}", variable.Key, variable.Value));
-
-            PrintTree(this.tree);
 		}
 
 		/// <summary>

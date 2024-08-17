@@ -7,7 +7,7 @@ class Preprocessor
         // read all content from file in filePath
         List<string> strings= File.ReadAllLines(filePath).ToList();
 
-        Helper.ColourPrint("Before Preprocessed", ConsoleColor.Blue);
+        Helper.ColourPrint("The source file:", ConsoleColor.Blue);
 
         foreach (string line in strings)
         {
@@ -53,7 +53,7 @@ class Preprocessor
 
         string text = string.Join("\n", strings);
 
-        Helper.ColourPrint("After Preprocessed", ConsoleColor.Blue);
+        Helper.ColourPrint("The Preprocessor has generated:", ConsoleColor.Blue);
         Console.WriteLine(text);
 
         File.WriteAllText(filePath + "_preprocessed.c", text);

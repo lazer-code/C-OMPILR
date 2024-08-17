@@ -47,8 +47,6 @@ namespace testCompiler
 		{
 			conditionsBodies.Add("" + (conditionsBodies.Count + 1));
 
-			Helper.ColourPrint($"Body added: L{conditionsBodies.Count}", ConsoleColor.Cyan);
-
 			return "L" + conditionsBodies.Count;
 		}
 
@@ -87,7 +85,7 @@ namespace testCompiler
 		/// </summary>
 		/// <param name="outputFileName"> the file the assembly will be written to </param>
 		/// <returns></returns>
-		private string generateOutputFile(string outputFileName)
+		private string GenerateOutputFile(string outputFileName)
 		{
 			string str = "";
 

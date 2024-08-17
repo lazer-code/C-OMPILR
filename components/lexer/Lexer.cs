@@ -134,11 +134,7 @@ namespace testCompiler
 		public static TokenTreeNode ParseEntryFile(string folderRoot)
 		{
 			string[] files = Directory.GetFiles(folderRoot);
-			Console.WriteLine("TEST OUTPUT");
-
-			for(int i = 0; i < files.Length; i++)
-				Console.WriteLine(files[i]);
-
+			
 			string fileText = File.ReadAllText(files[1]);
 
 			List<Token> tokens = Tokenizer.tokenize(fileText);
@@ -274,7 +270,7 @@ namespace testCompiler
 			return root;
 		}
 
-		public static List<LexResultObject> parseEntryFile(string folderRoot)
+		public static List<LexResultObject> ParseEntryFile2(string folderRoot)
 		{
 			List<LexResultObject> resultObjects = [];
 			string[] files = Directory.GetFiles(folderRoot);
@@ -282,19 +278,8 @@ namespace testCompiler
 
 			#region debugging output 
 			
-			Console.WriteLine("files in directory are ");
-
-			for (int i = 0; i < files.Length; i++)
-				Console.WriteLine(files[i]);
-
 			// seperate string on whitespaces
 			string[] wordsInFile = fileText.Split(null);
-
-			Console.WriteLine("words in source file: ");
-			for (int i = 0; i < wordsInFile.Length; i++)
-			{
-				//Console.WriteLine(wordsInFile[i]);
-			}
 
 			#endregion
 
