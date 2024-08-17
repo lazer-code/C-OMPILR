@@ -1,20 +1,5 @@
-namespace testCompiler
+namespace Components
 {
-	public enum TokenType
-	{
-    	Operator, Parenthesis, Brace, Bracket, Semicolon, Comma, Dot, Keyword, Number, String, Char, Identifier_var, Identifier_func, Comment, LogicalAnd, LogicalOr, LogicalNot, Equal, NotEqual, LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual, Assignment, BitwiseAnd, BitwiseOr, BitwiseXor, BitwiseNot, LeftShift, RightShift, EOF, Unknown, Body, Call
-	}
-
-	public struct Token(string value, TokenType type = TokenType.Unknown)
-    {
-        public string value = value;
-		public TokenType type = type;
-        public override string ToString()
-        {
-            return "{" + this.type + ", " +  this.value + "}";
-        }
-    }
-
 	public class TokenizationHelper(string input)
     {
 		private readonly string input = input;
@@ -25,7 +10,7 @@ namespace testCompiler
 		public string? GetNextToken()
 		{
 			// Skip whitespace characters
-			while (HasNext() && Char.IsWhiteSpace(input[currentPosition]))
+			while (HasNext() && char.IsWhiteSpace(input[currentPosition]))
 				currentPosition++;
 
 			// Check for end of string
@@ -35,7 +20,7 @@ namespace testCompiler
 			// Identify token based on first character
 			int start = currentPosition;
 
-			if (Char.IsLetterOrDigit(input[currentPosition]))
+			if (char.IsLetterOrDigit(input[currentPosition]))
 			{
 				// Read alphanumeric characters
 				while (HasNext() && (Char.IsLetterOrDigit(input[currentPosition]) || input[currentPosition] == '_'))
@@ -100,8 +85,6 @@ namespace testCompiler
 				newTokens.Add(curr);
 			}
 			
-			string result = "[" + string.Join(", ", newTokens.Select(x => x.ToString())) + "]";
-			Console.WriteLine(result);
 			return newTokens;
 		}
 	}

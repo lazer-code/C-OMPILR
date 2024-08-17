@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace cOMPILR.POC.TextFormatters
+namespace Components
 {
 	class AssemblyFormatter
 	{

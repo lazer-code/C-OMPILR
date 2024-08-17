@@ -1,63 +1,63 @@
-using testCompiler;
-
-class Preprocessor
+namespace Components
 {
-    public static void Preparse(string filePath)
+    class Preprocessor
     {
-        // read all content from file in filePath
-        List<string> strings= File.ReadAllLines(filePath).ToList();
-
-        Helper.ColourPrint("The source file:", ConsoleColor.Blue);
-
-        foreach (string line in strings)
+        public static string Preparse(string filePath)
         {
-            Console.WriteLine(line);
+            // read all content from file in filePath
+            List<string> strings= File.ReadAllLines(filePath).ToList();
 
-            if(line.StartsWith("#define"))
+            Helper.ColourPrint("The source file:", ConsoleColor.Blue);
+
+            foreach (string line in strings)
             {
-                string[] parts = line.Split(" ");
-                List<string> strings1 = [];
+                Console.WriteLine(line);
 
-                foreach(string line1 in strings)
-                    strings1.Add(line1.Replace(parts[1], parts[2]));
+                if(line.StartsWith("#define"))
+                {
+                    string[] parts = line.Split(" ");
+                    List<string> strings1 = [];
 
-                strings = strings1;
-                strings.Remove(line.Replace(parts[1], parts[2]));
+                    foreach(string line1 in strings)
+                        strings1.Add(line1.Replace(parts[1], parts[2]));
+
+                    strings = strings1;
+                    strings.Remove(line.Replace(parts[1], parts[2]));
+                }
+                
+                else if (line.StartsWith("#include"))
+                {
+                    string[] parts = line.Split(' ');
+                    
+                    //var filename = parts[1].Substring(1, parts[1].Length - 2);
+                    var filename = parts[1][1..^1];
+
+                    Console.WriteLine(filename);
+                    
+                    string[] fileContent;
+                    try
+                    {
+                        fileContent = File.ReadAllLines(filename);
+                    }
+                    catch (FileNotFoundException ex)
+                    {
+                        throw new Exception("LNK12: COULD NOT FIND FILE " + ex.FileName);
+                    }
+                    catch(Exception)
+                    {
+                        throw new Exception("preprocessor could not finish his job. err: " + new Random().NextInt64(0, 599));
+                    }
+                    
+                    strings = [..fileContent, ..strings];
+                    strings.Remove(line);
+                }
             }
-            
-            else if (line.StartsWith("#include"))
-            {
-                string[] parts = line.Split(' ');
-                
-                //var filename = parts[1].Substring(1, parts[1].Length - 2);
-                var filename = parts[1][1..^1];
 
-                Console.WriteLine(filename);
-                
-                string[] fileContent;
-                try
-                {
-                    fileContent = File.ReadAllLines(filename);
-                }
-                catch (FileNotFoundException ex)
-                {
-                    throw new Exception("LNK12: COULD NOT FIND FILE " + ex.FileName);
-                }
-                catch(Exception)
-                {
-                    throw new Exception("preprocessor could not finish his job. err: " + new Random().NextInt64(0, 599));
-                }
-                
-                strings = [..fileContent, ..strings];
-                strings.Remove(line);
-            }
+            string text = string.Join("\n", strings);
+
+            File.WriteAllText(filePath + "_preprocessed.c", text);
+
+            return text;
         }
-
-        string text = string.Join("\n", strings);
-
-        Helper.ColourPrint("The Preprocessor has generated:", ConsoleColor.Blue);
-        Console.WriteLine(text);
-
-        File.WriteAllText(filePath + "_preprocessed.c", text);
     }
 }

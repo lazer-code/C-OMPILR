@@ -1,7 +1,4 @@
-using System.Data.Common;
-using cOMPILR.POC.TextFormatters;
-
-namespace testCompiler
+namespace Components
 {
 	partial class Synthesizer
 	{

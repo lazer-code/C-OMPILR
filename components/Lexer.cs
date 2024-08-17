@@ -1,62 +1,5 @@
-using System;
-using System.ComponentModel.Design;
-using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.ConstrainedExecution;
-using System.Runtime.Serialization;
-using System.Security.Cryptography;
-using System.Threading.Tasks.Dataflow;
-using System.Timers;
-
-namespace testCompiler
+namespace Components
 {
-	public class TokenTreeNode
-	{
-		public TokenTreeNode? Parent { get; set; }
-		public Token Value { get; set; }
-		public List<TokenTreeNode> Children { get; set; }
-		public bool IsArgument { get; }
-
-		public TokenTreeNode(TokenType type, string content, bool isArgument)
-		{
-			this.Value = new Token(content, type);
-			this.Children = [];
-			this.Parent = null;
-			this.IsArgument = isArgument;
-		}
-
-		public TokenTreeNode(TokenTreeNode ttn)
-		{
-			this.Value = new Token(ttn.Value.value, ttn.Value.type);
-			this.Children = [];
-			this.IsArgument = ttn.IsArgument;
-			this.Parent = null;
-		}
-
-		public void AddChild(TokenTreeNode? child)
-		{
-			if (child != null)
-			{
-				child.Parent = this;
-				this.Children.Add(child);
-			}
-		}
-
-		public override string ToString() => $"[isArgument : {this.IsArgument}]{this.Value.type.ToString()}({this.Value.value})";
-
-		public void PrintTree() => PrintNode(this, 0);
-
-		private static void PrintNode(TokenTreeNode node, int indentLevel)
-		{
-			string indent = new(' ', indentLevel * 4);
-			Console.WriteLine($"{indent}{node.Value.type.ToString()}({node.Value.value})" + (node.IsArgument ? "[ARGUMENT]" : ""));
-
-			foreach (var child in node.Children)
-                PrintNode(child, indentLevel + 1);
-		}
-	}
-
 	class ClassificationHelper
 	{
 		// C reserved words, see https://en.cppreference.com/w/c/keyword
@@ -131,14 +74,8 @@ namespace testCompiler
 
 	class Lexer
 	{
-		public static TokenTreeNode ParseEntryFile(string folderRoot)
+		public static TokenTreeNode ParseEntryFile(List<Token> tokens)
 		{
-			string[] files = Directory.GetFiles(folderRoot);
-			
-			string fileText = File.ReadAllText(files[1]);
-
-			List<Token> tokens = Tokenizer.Tokenize(fileText);
-
 			TokenTreeNode root = new(TokenType.Unknown, "root", false);
 			TokenTreeNode currentParent = root;
 
@@ -151,22 +88,28 @@ namespace testCompiler
 				if (currentParent == null)
 					continue;
 
+				// Checking for variables identigication
 				if (ClassificationHelper.IsIdentifier(tokens[i].value) && !tokens[i + 1].value.Contains('('))
 					currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_var, tokens[i].value, goingOverArgs));
 
+				// Checking for variable assignment
 				else if (tokens[i].value == "=")
 					currentParent.AddChild(new TokenTreeNode(TokenType.Assignment, tokens[i].value, goingOverArgs));
 
+				// Checking for numeric values
 				else if (ClassificationHelper.IsNumeric(tokens[i].value))
 					currentParent.AddChild(new TokenTreeNode(TokenType.Number, tokens[i].value, goingOverArgs));
 
 				else if (tokens[i].value.Trim() != "")
-				{
+				{	
+					// Checking for starting a body of condition or function
 					if (tokens[i].value == "{")
 					{
+						// Checking for function definitions
 						if(currentParent.Children[0].Value.type == TokenType.Identifier_func)
 							currentParent = currentParent.Children[0];
 
+						// Body definition
 						else
 						{
 							var body = new TokenTreeNode(TokenType.Body, "", false);
@@ -177,6 +120,7 @@ namespace testCompiler
 						blockIndex++;
 					}
 
+					// Checking for body closer
 					else if (tokens[i].value == "}")
 					{
 						blockIndex--;
@@ -266,84 +210,6 @@ namespace testCompiler
 			}
 
 			return root;
-		}
-
-		public static List<LexResultObject> ParseEntryFile2(string folderRoot)
-		{
-			List<LexResultObject> resultObjects = [];
-			string[] files = Directory.GetFiles(folderRoot);
-			string fileText = File.ReadAllText(files[0]);
-
-			#region debugging output 
-			
-			// seperate string on whitespaces
-			string[] wordsInFile = fileText.Split(null);
-
-			#endregion
-
-			#region classifying objects
-			
-			int blockIndex = 0;
-
-			for (int i = 0; i < wordsInFile.Length; i++)
-			{
-				if (wordsInFile[i].Trim() != "")
-				{
-					if (wordsInFile[i] == "{" || wordsInFile[i].Contains('{'))
-					{
-						if (wordsInFile[i - 1].Trim() == "" && blockIndex == 0)
-							resultObjects.RemoveAt(resultObjects.Count - 1);
-
-						blockIndex++;
-					}
-
-					if (wordsInFile[i] == "}" || wordsInFile[i].Contains('}'))
-						blockIndex--;
-
-					else if (blockIndex == 0)
-					{
-						if(wordsInFile[i].Contains('('))
-						{
-							// finding function definitions
-							//resultObjects.RemoveAt(resultObjects.Count);
-							resultObjects.Add(new LexResultObject(TokenType.Identifier_func, wordsInFile[i - 1] + " " + wordsInFile[i]));
-						}
-					}
-					
-					else if (wordsInFile[i].Contains('('))
-					{
-						// finding function calls
-						resultObjects.Add(new LexResultObject(TokenType.Call, wordsInFile[i][..wordsInFile[i].IndexOf('(')]));
-					}
-
-					if (wordsInFile[i].Contains('"'))
-					{
-						// finding a string
-						int startIndex = wordsInFile[i].IndexOf('"');
-						int endIndex = wordsInFile[i].IndexOf('"', startIndex + 1);
-
-						string strLiteral = "";
-						strLiteral += wordsInFile[i];
-
-						bool foundStrEnd = endIndex != -1;
-
-						while (!foundStrEnd)
-						{
-							i++;
-							strLiteral += " " + wordsInFile[i];
-							endIndex = wordsInFile[i].IndexOf('"');
-							foundStrEnd = endIndex != -1;
-						}
-
-						endIndex = strLiteral.LastIndexOf('"');
-
-						resultObjects.Add(new LexResultObject(TokenType.String, strLiteral.Substring(startIndex, endIndex - startIndex + 1)));
-					}
-				}
-			}
-			#endregion
-
-			return resultObjects;
 		}
 	}
 }
