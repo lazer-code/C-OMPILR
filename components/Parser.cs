@@ -16,7 +16,7 @@ class Parser
             var child = node.Children[i];
 
             if(child.Value.type == TokenType.Identifier_func)
-                child.Value = new(child.Value.GetValue().Split(' ')[1], TokenType.Identifier_func);
+                child.Value = new(child.Value.value.Split(' ')[1], TokenType.Identifier_func);
 
             if (conditionsOperators.Contains(child.Value.type))
             {
@@ -34,7 +34,7 @@ class Parser
                 i++; // Skip the next sibling
             }
 
-            else if(child.Value.type == TokenType.Keyword && child.Value.GetValue() == "return")
+            else if(child.Value.type == TokenType.Keyword && child.Value.value == "return")
             {
                 TokenTreeNode retNode = new(child);
 
@@ -70,7 +70,7 @@ class Parser
                     {
 
                     }
-                    else if(child.Value.type == TokenType.Keyword && child.Value.GetValue() == "int")
+                    else if(child.Value.type == TokenType.Keyword && child.Value.value == "int")
                     {
 
                     }
@@ -103,7 +103,7 @@ class Parser
         {
             var child = node.Children[i];
 
-            if (child.Value.type == TokenType.Keyword && child.Value.GetValue() == "if")
+            if (child.Value.type == TokenType.Keyword && child.Value.value == "if")
             {
                 // Create a new node for the if statement
                 var ifNode = new TokenTreeNode(child);

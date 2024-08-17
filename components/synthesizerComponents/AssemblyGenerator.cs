@@ -23,9 +23,9 @@ namespace testCompiler
 				TokenType.Unknown => "",
 				TokenType.EOF => "",
 				TokenType.Assignment => "movl",
-				TokenType.Identifier_var => $"{this.varOffsets[tk.GetValue()]}(%esp)",
-				TokenType.Identifier_func => $"_{tk.GetValue()}:",
-				TokenType.Number => $"${tk.GetValue()}",
+				TokenType.Identifier_var => $"{this.varOffsets[tk.value]}(%esp)",
+				TokenType.Identifier_func => $"_{tk.value}:",
+				TokenType.Number => $"${tk.value}",
 				TokenType.Equal => "je",
 				TokenType.NotEqual => "jne",
 				TokenType.GreaterThan => "jg",
@@ -33,21 +33,21 @@ namespace testCompiler
 				TokenType.LessThan => "jl",
 				TokenType.LessThanOrEqual => "jle",
 
-				TokenType.Operator => tk.GetValue() switch
+				TokenType.Operator => tk.value switch
 				{
 					"+" => "add",
 					"*" => "mul",
-					_ => throw new Exception($"unknown operator{tk.GetValue()}did you forget to implement it?"),
+					_ => throw new Exception($"unknown operator{tk.value}did you forget to implement it?"),
 				},
-				TokenType.Keyword => tk.GetValue() switch
+				TokenType.Keyword => tk.value switch
 				{
 					"if" => "",
 					"return" => "movl",
 					"int" => "",
-					_ => throw new Exception($"unknown keyword {tk.GetValue()}")
+					_ => throw new Exception($"unknown keyword {tk.value}")
 				},
 				TokenType.Body => GetBodyName(),
-				_ => throw new Exception("invalid line ( for now ) on token " +tk.GetType().Name + "("  + tk.GetValue() + ")"),
+				_ => throw new Exception("invalid line ( for now ) on token " +tk.GetType().Name + "("  + tk.value + ")"),
 			};
 		}
 
@@ -78,7 +78,7 @@ namespace testCompiler
 				foreach (var child in tk.Children)
 					str += this.AddBodies(child, true, str, bodyCount);
 
-				if (tk.Value.type == TokenType.Keyword && tk.Value.GetValue() == "return")
+				if (tk.Value.type == TokenType.Keyword && tk.Value.value == "return")
 					str += " %eax ret ";
 			}
 
@@ -151,7 +151,7 @@ namespace testCompiler
 			}
 			// TODO: find a way to do this that isn't hard coding an exception for this case 
 
-			if (tk.Value.type == TokenType.Keyword && tk.Value.GetValue() == "return")
+			if (tk.Value.type == TokenType.Keyword && tk.Value.value == "return")
 				str += " %eax ret ";
 
 			// return the string with all the instructions
@@ -167,25 +167,25 @@ namespace testCompiler
 
 			if(left.Value.type == TokenType.Identifier_var)
 			{
-				leftOffset = this.varOffsets[left.Value.GetValue()];
+				leftOffset = this.varOffsets[left.Value.value];
 				if(right.Value.type == TokenType.Identifier_var)
 				{
-					rightOffset = this.varOffsets[right.Value.GetValue()];
+					rightOffset = this.varOffsets[right.Value.value];
 					return $"movl {rightOffset}(%esp) %eax cmpl {leftOffset}(%esp) %eax";
 				}
 
 				else
-					return $"movl ${right.Value.GetValue()} %eax cmpl {leftOffset}(%esp) %eax";
+					return $"movl ${right.Value.value} %eax cmpl {leftOffset}(%esp) %eax";
 			}
 
 			else if(right.Value.type == TokenType.Identifier_var)
 			{
-				rightOffset = this.varOffsets[right.Value.GetValue()];
-				return $"movl {rightOffset}(%esp) %eax cmpl ${left.Value.GetValue()} %eax";
+				rightOffset = this.varOffsets[right.Value.value];
+				return $"movl {rightOffset}(%esp) %eax cmpl ${left.Value.value} %eax";
 			}
 
 			else
-				return $"cmpl ${left.Value.GetValue()} ${right.Value.GetValue()}";			
+				return $"cmpl ${left.Value.value} ${right.Value.value}";			
 		}
 	}
 }

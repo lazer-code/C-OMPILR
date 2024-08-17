@@ -54,7 +54,7 @@ namespace testCompiler
 		/// <param name="level">the tab amount</param>
 		public static void PrintTree(TokenTreeNode node, int level = 0)
 		{
-			Console.WriteLine("" + new string('\t', level) + node.Value.type + ":" + node.Value.GetValue());
+			Console.WriteLine("" + new string('\t', level) + node.Value.type + ":" + node.Value.value);
 			
 			foreach (var child in node.Children)
                 PrintTree(child, level + 1);

@@ -28,7 +28,7 @@ namespace testCompiler
 
 		public TokenTreeNode(TokenTreeNode ttn)
 		{
-			this.Value = new Token(ttn.Value.GetValue(), ttn.Value.type);
+			this.Value = new Token(ttn.Value.value, ttn.Value.type);
 			this.Children = [];
 			this.IsArgument = ttn.IsArgument;
 			this.Parent = null;
@@ -43,14 +43,14 @@ namespace testCompiler
 			}
 		}
 
-		public override string ToString() => $"[isArgument : {this.IsArgument}]{this.Value.type.ToString()}({this.Value.GetValue()})";
+		public override string ToString() => $"[isArgument : {this.IsArgument}]{this.Value.type.ToString()}({this.Value.value})";
 
 		public void PrintTree() => PrintNode(this, 0);
 
 		private static void PrintNode(TokenTreeNode node, int indentLevel)
 		{
 			string indent = new(' ', indentLevel * 4);
-			Console.WriteLine($"{indent}{node.Value.type.ToString()}({node.Value.GetValue()})" + (node.IsArgument ? "[ARGUMENT]" : ""));
+			Console.WriteLine($"{indent}{node.Value.type.ToString()}({node.Value.value})" + (node.IsArgument ? "[ARGUMENT]" : ""));
 
 			foreach (var child in node.Children)
                 PrintNode(child, indentLevel + 1);
@@ -62,7 +62,7 @@ namespace testCompiler
 		// C reserved words, see https://en.cppreference.com/w/c/keyword
 		static readonly List<string> keywords = ["alignas", "alignof", "auto", "bool", "break", "case", "char", "const", "constexpr", "continue", "default", "do", "double", "else", "enum", "extern", "false", "float", "for", "goto", "if", "inline", "int", "long", "nullptr", "register", "restrict", "return", "short", "signed", "sizeof", "static", "static_assert", "struct", "switch", "thread_local", "true", "typedef", "typeof", "typeof_unqual", "union", "usigned", "void", "volatiole", "while"];
 		static readonly List<string> operators = ["+", "*", "-", "/", "%"];
-		static readonly List<string> comparisonOperators = ["==", ">=", "<=", ">", "<"];
+		static readonly List<string> comparisonOperators = ["==", "!=", ">=", "<=", ">", "<"];
 		public static bool IsIdentifier(string tokenValue)
 		{
 			tokenValue = tokenValue.Trim();
@@ -137,7 +137,7 @@ namespace testCompiler
 			
 			string fileText = File.ReadAllText(files[1]);
 
-			List<Token> tokens = Tokenizer.tokenize(fileText);
+			List<Token> tokens = Tokenizer.Tokenize(fileText);
 
 			TokenTreeNode root = new(TokenType.Unknown, "root", false);
 			TokenTreeNode currentParent = root;
@@ -151,18 +151,18 @@ namespace testCompiler
 				if (currentParent == null)
 					continue;
 
-				if (ClassificationHelper.IsIdentifier(tokens[i].GetValue()) && !tokens[i + 1].GetValue().Contains('('))
-					currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_var, tokens[i].GetValue(), goingOverArgs));
+				if (ClassificationHelper.IsIdentifier(tokens[i].value) && !tokens[i + 1].value.Contains('('))
+					currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_var, tokens[i].value, goingOverArgs));
 
-				else if (tokens[i].GetValue().Contains('='))
-					currentParent.AddChild(new TokenTreeNode(TokenType.Assignment, tokens[i].GetValue(), goingOverArgs));
+				else if (tokens[i].value == "=")
+					currentParent.AddChild(new TokenTreeNode(TokenType.Assignment, tokens[i].value, goingOverArgs));
 
-				else if (ClassificationHelper.IsNumeric(tokens[i].GetValue()))
-					currentParent.AddChild(new TokenTreeNode(TokenType.Number, tokens[i].GetValue(), goingOverArgs));
+				else if (ClassificationHelper.IsNumeric(tokens[i].value))
+					currentParent.AddChild(new TokenTreeNode(TokenType.Number, tokens[i].value, goingOverArgs));
 
-				else if (tokens[i].GetValue().Trim() != "")
+				else if (tokens[i].value.Trim() != "")
 				{
-					if (tokens[i].GetValue() == "{" || tokens[i].GetValue().Contains('{'))
+					if (tokens[i].value == "{")
 					{
 						if(currentParent.Children[0].Value.type == TokenType.Identifier_func)
 							currentParent = currentParent.Children[0];
@@ -177,46 +177,46 @@ namespace testCompiler
 						blockIndex++;
 					}
 
-					else if (tokens[i].GetValue() == "}" || tokens[i].GetValue().Contains('}'))
+					else if (tokens[i].value == "}")
 					{
 						blockIndex--;
                         currentParent = currentParent.Parent;
                     }
 
-					else if (tokens[i].GetValue() == ")" && blockIndex != 0)
+					else if (tokens[i].value == ")" && blockIndex != 0)
 						goingOverArgs = false;
 
 					else if (blockIndex == 0)
 					{
-						if (!tokens[i].GetValue().Contains('('))
+						if (!tokens[i].value.Contains('('))
 						{
 							if (!finishedParams)
 							{
-								if (!tokens[i].GetValue().Equals(")"))
+								if (!tokens[i].value.Equals(")"))
 								{
 									// finding function parameters
-									currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_var, tokens[i].GetValue(), true));
+									currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_var, tokens[i].value, true));
 								}
 							}
 
 							else
 							{
 								// finding function modifiers
-								currentParent.AddChild(new TokenTreeNode(TokenType.Keyword, tokens[i].GetValue(), false));
+								currentParent.AddChild(new TokenTreeNode(TokenType.Keyword, tokens[i].value, false));
 							}
 						}
-						else if (tokens[i].GetValue().Contains(')'))
+						else if (tokens[i].value.Contains(')'))
 						{
 							finishedParams = true;
 
-							if (tokens[i].GetValue().Contains('('))
+							if (tokens[i].value.Contains('('))
 							{
 								currentParent.Children.RemoveAt(currentParent.Children.Count - 1);
 								currentParent.Children.RemoveAt(currentParent.Children.Count - 1);
 
-								currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_func, tokens[i - 2].GetValue() + " " + tokens[i - 1].GetValue(), goingOverArgs));
+								currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_func, tokens[i - 2].value + " " + tokens[i - 1].value, goingOverArgs));
 
-								string funcParams = tokens[i].GetValue()[tokens[i].GetValue().IndexOf('(')..tokens[i].GetValue().IndexOf(')')];
+								string funcParams = tokens[i].value[tokens[i].value.IndexOf('(')..tokens[i].value.IndexOf(')')];
 								
 								if (funcParams.Length > 0)
 									currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_var, funcParams, false));
@@ -231,36 +231,36 @@ namespace testCompiler
 							currentParent.Children.RemoveAt(currentParent.Children.Count - 1);
 							currentParent.Children.RemoveAt(currentParent.Children.Count - 1);
 
-							currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_func, tokens[i - 2].GetValue() + " " + tokens[i - 1].GetValue(), false));
+							currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_func, tokens[i - 2].value + " " + tokens[i - 1].value, false));
 
 							finishedParams = false;
 						}
 					}
 
-					else if(ClassificationHelper.IsKeyword(tokens[i].GetValue()))
-						currentParent.AddChild(new TokenTreeNode(TokenType.Keyword, tokens[i].GetValue(), false));
+					else if(ClassificationHelper.IsKeyword(tokens[i].value))
+						currentParent.AddChild(new TokenTreeNode(TokenType.Keyword, tokens[i].value, false));
 
-					else if(ClassificationHelper.IsOperator(tokens[i].GetValue()))
-						currentParent.AddChild(new TokenTreeNode(TokenType.Operator, tokens[i].GetValue(), false));
+					else if(ClassificationHelper.IsOperator(tokens[i].value))
+						currentParent.AddChild(new TokenTreeNode(TokenType.Operator, tokens[i].value, false));
 
-					else if(ClassificationHelper.IsComparison(tokens[i].GetValue()))
+					else if(ClassificationHelper.IsComparison(tokens[i].value))
 					{
-						TokenType type = ClassificationHelper.GetComparisonType(tokens[i].GetValue());
-						currentParent.AddChild(new TokenTreeNode(type, tokens[i].GetValue(), false));
+						TokenType type = ClassificationHelper.GetComparisonType(tokens[i].value);
+						currentParent.AddChild(new TokenTreeNode(type, tokens[i].value, false));
 					}
 
-					else if (tokens[i].GetValue().Contains('(') && !ClassificationHelper.IsKeyword(tokens[i - 1].GetValue()))
+					else if (tokens[i].value.Contains('(') && !ClassificationHelper.IsKeyword(tokens[i - 1].value))
 					{
 						// finding function calls
-						currentParent.AddChild(new TokenTreeNode(TokenType.Call, tokens[i - 1].GetValue(), false));
+						currentParent.AddChild(new TokenTreeNode(TokenType.Call, tokens[i - 1].value, false));
 						goingOverArgs = true;
 					}
 
-					if (tokens[i].GetValue().Contains('"') && currentParent != null)
+					if (tokens[i].value.Contains('"') && currentParent != null)
 					{
 						// finding a string
-						int startIndex = tokens[i].GetValue().IndexOf('"'), endIndex = tokens[i].GetValue().LastIndexOf('"');
-						currentParent.AddChild(new TokenTreeNode(TokenType.String, tokens[i].GetValue().Substring(startIndex, endIndex - startIndex + 1), goingOverArgs));
+						int startIndex = tokens[i].value.IndexOf('"'), endIndex = tokens[i].value.LastIndexOf('"');
+						currentParent.AddChild(new TokenTreeNode(TokenType.String, tokens[i].value.Substring(startIndex, endIndex - startIndex + 1), goingOverArgs));
 					}
 				}
 			}

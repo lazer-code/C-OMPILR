@@ -30,7 +30,7 @@ namespace testCompiler
 		private static List<string> extractVariableNames(TokenTreeNode head, List<string> names)
 		{
 			// the boolean was created just for me to be able to not use a if else function and still be able to call the function
-			bool added = (head.Value.type == TokenType.Identifier_var || head.Value.type == TokenType.Identifier_func) && names.AddIfNotIncluded(head.Value.GetValue());
+			bool added = (head.Value.type == TokenType.Identifier_var || head.Value.type == TokenType.Identifier_func) && names.AddIfNotIncluded(head.Value.value);
 
 			// recuresively traverse the entire tree looking for identifier
 			foreach (var child in head.Children)

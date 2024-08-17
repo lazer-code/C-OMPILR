@@ -7,11 +7,13 @@ namespace testCompiler
 
 	public struct Token(string value, TokenType type = TokenType.Unknown)
     {
-        readonly string value = value;
+        public string value = value;
 		public TokenType type = type;
-
-        public readonly string GetValue() => this.value;
-	}
+        public override string ToString()
+        {
+            return "{" + this.type + ", " +  this.value + "}";
+        }
+    }
 
 	public class TokenizationHelper(string input)
     {
@@ -65,12 +67,12 @@ namespace testCompiler
 
 	class Tokenizer
 	{
-		public static List<Token> tokenize(string content)
+		public static List<Token> Tokenize(string content)
 		{
 			string[] wordsInFile = content.Split(" ;,\t\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 			List<Token> tokens = [];
 
-			TokenizationHelper tokenizer = new TokenizationHelper(content);
+			TokenizationHelper tokenizer = new(content);
 
 			while (tokenizer.HasNext())
 			{
@@ -82,7 +84,25 @@ namespace testCompiler
 				}
 			}
 
-			return tokens;
+			HashSet<string> conditions = ["!", "<", ">", "="];
+			List<Token> newTokens = [];
+
+			for (int i = 0; i < tokens.Count; i++)
+			{
+				Token curr = tokens[i];
+
+				if (i < tokens.Count - 1 && tokens[i+1].value == "=" && conditions.Contains(tokens[i].value))
+				{
+					i++;
+					curr.value += "=";
+				}
+
+				newTokens.Add(curr);
+			}
+			
+			string result = "[" + string.Join(", ", newTokens.Select(x => x.ToString())) + "]";
+			Console.WriteLine(result);
+			return newTokens;
 		}
 	}
 }
