@@ -7,5 +7,5 @@ cls
 gcc -c output.S -o output.o
 gcc output.o -o output.exe
 output
-echo program returned %errorlevel%
+echo The program has returned: %errorlevel%
 pause

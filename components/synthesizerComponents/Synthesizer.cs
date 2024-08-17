@@ -8,8 +8,6 @@ namespace testCompiler
 		TokenTreeNode tree = tokenTree;
 		Dictionary<string, int> varOffsets = [];
 
-		uint currentConditionalId = 0;
-
         private Dictionary<string, int> GenerateASMLocations(string[] variables)
 		{
 			// turn all of the identifiers to offsets

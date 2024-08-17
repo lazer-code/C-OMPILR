@@ -28,7 +28,9 @@ class Preprocessor
             else if (line.StartsWith("#include"))
             {
                 string[] parts = line.Split(' ');
-                var filename = parts[1].Substring(1, parts[1].Length - 2);
+                
+                //var filename = parts[1].Substring(1, parts[1].Length - 2);
+                var filename = parts[1][1..^1];
 
                 Console.WriteLine(filename);
                 

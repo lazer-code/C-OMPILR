@@ -29,7 +29,7 @@ namespace testCompiler
 		public TokenTreeNode(TokenTreeNode ttn)
 		{
 			this.Value = new Token(ttn.Value.GetValue(), ttn.Value.type);
-			this.Children = new List<TokenTreeNode>();
+			this.Children = [];
 			this.IsArgument = ttn.IsArgument;
 			this.Parent = null;
 		}
@@ -57,7 +57,7 @@ namespace testCompiler
 		}
 	}
 
-	class classificationHelper
+	class ClassificationHelper
 	{
 		// C reserved words, see https://en.cppreference.com/w/c/keyword
 		static readonly List<string> keywords = ["alignas", "alignof", "auto", "bool", "break", "case", "char", "const", "constexpr", "continue", "default", "do", "double", "else", "enum", "extern", "false", "float", "for", "goto", "if", "inline", "int", "long", "nullptr", "register", "restrict", "return", "short", "signed", "sizeof", "static", "static_assert", "struct", "switch", "thread_local", "true", "typedef", "typeof", "typeof_unqual", "union", "usigned", "void", "volatiole", "while"];
@@ -66,6 +66,7 @@ namespace testCompiler
 		public static bool IsIdentifier(string tokenValue)
 		{
 			tokenValue = tokenValue.Trim();
+
 			if (string.IsNullOrEmpty(tokenValue))
 				return false;
 
@@ -94,19 +95,19 @@ namespace testCompiler
 			return tokenValue.Contains('+') || tokenValue.Contains('-') || tokenValue.Contains('*') || tokenValue.Contains('/');
 		}
 
-		public static bool isOperator(string tokenValue) => operators.Contains(tokenValue.Trim());
-		public static bool isComparison(string tokenValue) => comparisonOperators.Contains(tokenValue.Trim());
+		public static bool IsOperator(string tokenValue) => operators.Contains(tokenValue.Trim());
+		public static bool IsComparison(string tokenValue) => comparisonOperators.Contains(tokenValue.Trim());
 
-		public static TokenType getComparisonType(string tokenValue)
+		public static TokenType GetComparisonType(string tokenValue)
 		{
 			return tokenValue switch
 			{
 				"==" => TokenType.Equal,
 				"!=" => TokenType.NotEqual,
-				"<" => TokenType.LessThan,
 				">" => TokenType.GreaterThan,
+				">=" => TokenType.GreaterThanOrEqual,				
+				"<" => TokenType.LessThan,
 				"<=" => TokenType.LessThanOrEqual,
-				">=" => TokenType.GreaterThanOrEqual,
 				_ => throw new Exception("invalid comparison operator. (how did you manage this?)"),
 			};
 		}
@@ -114,7 +115,6 @@ namespace testCompiler
 		public static bool IsKeyword(string tokenValue) => !string.IsNullOrWhiteSpace(tokenValue) && keywords.Contains(tokenValue);
 
 		public static bool IsNumeric(string str) => !string.IsNullOrEmpty(str) && str.All(char.IsDigit);
-
 	}
 
 	class LexResultObject(TokenType type, string content, bool isArgument = false)
@@ -151,13 +151,13 @@ namespace testCompiler
 				if (currentParent == null)
 					continue;
 
-				if (classificationHelper.IsIdentifier(tokens[i].GetValue()) && !tokens[i + 1].GetValue().Contains('('))
+				if (ClassificationHelper.IsIdentifier(tokens[i].GetValue()) && !tokens[i + 1].GetValue().Contains('('))
 					currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_var, tokens[i].GetValue(), goingOverArgs));
 
-				else if (tokens[i].GetValue().Contains("="))
+				else if (tokens[i].GetValue().Contains('='))
 					currentParent.AddChild(new TokenTreeNode(TokenType.Assignment, tokens[i].GetValue(), goingOverArgs));
 
-				else if (classificationHelper.IsNumeric(tokens[i].GetValue()))
+				else if (ClassificationHelper.IsNumeric(tokens[i].GetValue()))
 					currentParent.AddChild(new TokenTreeNode(TokenType.Number, tokens[i].GetValue(), goingOverArgs));
 
 				else if (tokens[i].GetValue().Trim() != "")
@@ -239,19 +239,19 @@ namespace testCompiler
 						}
 					}
 
-					else if(classificationHelper.IsKeyword(tokens[i].GetValue()))
+					else if(ClassificationHelper.IsKeyword(tokens[i].GetValue()))
 						currentParent.AddChild(new TokenTreeNode(TokenType.Keyword, tokens[i].GetValue(), false));
 
-					else if(classificationHelper.isOperator(tokens[i].GetValue()))
+					else if(ClassificationHelper.IsOperator(tokens[i].GetValue()))
 						currentParent.AddChild(new TokenTreeNode(TokenType.Operator, tokens[i].GetValue(), false));
 
-					else if(classificationHelper.isComparison(tokens[i].GetValue()))
+					else if(ClassificationHelper.IsComparison(tokens[i].GetValue()))
 					{
-						TokenType type = classificationHelper.getComparisonType(tokens[i].GetValue());
+						TokenType type = ClassificationHelper.GetComparisonType(tokens[i].GetValue());
 						currentParent.AddChild(new TokenTreeNode(type, tokens[i].GetValue(), false));
 					}
 
-					else if (tokens[i].GetValue().Contains('(') && !classificationHelper.IsKeyword(tokens[i - 1].GetValue()))
+					else if (tokens[i].GetValue().Contains('(') && !ClassificationHelper.IsKeyword(tokens[i - 1].GetValue()))
 					{
 						// finding function calls
 						currentParent.AddChild(new TokenTreeNode(TokenType.Call, tokens[i - 1].GetValue(), false));

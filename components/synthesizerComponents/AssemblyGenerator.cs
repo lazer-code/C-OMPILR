@@ -6,6 +6,8 @@ namespace testCompiler
 	partial class Synthesizer
 	{
 		List<string> conditionsBodies = [];
+        static HashSet<TokenType> conditions = [TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThan, 
+		TokenType.GreaterThanOrEqual, TokenType.LessThan, TokenType.LessThanOrEqual];
 
 		/// <summary>
 		/// turns a token to an assembly command
@@ -24,13 +26,19 @@ namespace testCompiler
 				TokenType.Identifier_var => $"{this.varOffsets[tk.GetValue()]}(%esp)",
 				TokenType.Identifier_func => $"_{tk.GetValue()}:",
 				TokenType.Number => $"${tk.GetValue()}",
+				TokenType.Equal => "je",
+				TokenType.NotEqual => "jne",
+				TokenType.GreaterThan => "jg",
+				TokenType.GreaterThanOrEqual => "jge",
+				TokenType.LessThan => "jl",
+				TokenType.LessThanOrEqual => "jle",
+
 				TokenType.Operator => tk.GetValue() switch
 				{
 					"+" => "add",
 					"*" => "mul",
 					_ => throw new Exception($"unknown operator{tk.GetValue()}did you forget to implement it?"),
 				},
-				TokenType.GreaterThan => "jg",
 				TokenType.Keyword => tk.GetValue() switch
 				{
 					"if" => "",
@@ -55,6 +63,7 @@ namespace testCompiler
 			if (tk.Value.type == TokenType.Body || isCurrentlyInABody)
 			{
 				bodyCount++;
+				
 				if (!isCurrentlyInABody)
 				{
 					string str1 = conditionsBodies[0];
@@ -90,7 +99,7 @@ namespace testCompiler
 			string str = "";
 
 			// get the assembly
-			str += generateOutputFile(this.tree);
+			str += GenerateOutputFile(this.tree);
 
 			// get the functions
 			str += AddBodies(this.tree);
@@ -108,12 +117,12 @@ namespace testCompiler
 		/// </summary>
 		/// <param name="tk">the token tree root</param>
 		/// <returns>a string with all opcodes ( unformatted ) </returns>
-		private string generateOutputFile(TokenTreeNode tk)
+		private string GenerateOutputFile(TokenTreeNode tk)
 		{
 			string str = "";
 
 			// if the instruction is greater than, add it after its children
-			if (tk.Value.type != TokenType.GreaterThan)
+			if (!conditions.Contains(tk.Value.type))
 				str = GenerateOpcodes(tk.Value); // turn the instruction to a opcode
 												 // TODO: find a way to do this that isn't hard coding an exception for this case 
 
@@ -122,10 +131,10 @@ namespace testCompiler
 				// recursively traverse the tree and add all the instructions to a string 
 				foreach (var child in tk.Children)
 				{
-					if (tk.Value.type != TokenType.GreaterThan)
+					if (!conditions.Contains(tk.Value.type))
 					{
 						str += " ";
-						str += this.generateOutputFile(child);
+						str += this.GenerateOutputFile(child);
 					}
 
 				}
@@ -135,7 +144,7 @@ namespace testCompiler
 				str += " ";
 
 			// if the instruction is greater than, add it after its children
-			if (tk.Value.type == TokenType.GreaterThan)
+			if (conditions.Contains(tk.Value.type))
 			{
 				str += HandleComparisonOperands(tk.Children);
 				str += " " + GenerateOpcodes(tk.Value);
