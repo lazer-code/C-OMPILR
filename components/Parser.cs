@@ -62,23 +62,13 @@ namespace Components
                 {
                     if(i != node.Children.Count -1)
                     {
-                        if(conditionsOperators.Contains(node.Children[i+1].Value.type))
-                        {
-
-                        }
-                        else if(node.Children[i+1].Value.type == TokenType.Assignment)
-                        {
-
-                        }
-                        else if(child.Value.type == TokenType.Keyword && child.Value.value == "int")
-                        {
-
-                        }
-                        else
-                        {
+                        bool con1 = conditionsOperators.Contains(node.Children[i+1].Value.type);
+                        bool con2 = node.Children[i+1].Value.type == TokenType.Assignment;
+                        bool con3 = child.Value.type == TokenType.Keyword && child.Value.value == "int";
+                        
+                        if(!con1 && !con2 && !con3)
                             if(!child.IsArgument)
                                 newRoot.AddChild(ReorderBlock(node.Children[i]));
-                        }
                     }
 
                     else
