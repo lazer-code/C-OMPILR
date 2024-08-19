@@ -4,17 +4,19 @@
 	{
 		public static void Main(string[] args)
 		{
+			if (args.Length < 1)
+				return;
+
+			string filename = args[1];	
 			string folderRoot = "./";
 			if(args.Length > 0)
 				folderRoot = args[0];
 
-			string res = Preprocessor.Preparse(folderRoot + "/entry.c");
+			string res = Preprocessor.Preparse(folderRoot + filename);
 			Helper.ColourPrint("\n\n\nThe Preprocessor has generated:", ConsoleColor.Blue);
             Console.WriteLine(res);
 
-			string[] files = Directory.GetFiles(folderRoot);
-			string fileText = File.ReadAllText(files[1]);
-			List<Token> tokens = Tokenizer.Tokenize(fileText);
+			List<Token> tokens = Tokenizer.Tokenize(res);
 
 			Helper.ColourPrint("\n\n\nThe Tokenizer has generated:", ConsoleColor.Blue);
 			res = "[" + string.Join(", ", tokens.Select(x => x.ToString())) + "]";

@@ -1,10 +1,9 @@
 @echo off
 cd ../components
-dotnet run ../tests/
+dotnet run ../tests/ entry.c
 cd ../tests/
 
-gcc -c output.S -o output.o
-gcc output.o -o output.exe
-output
+gcc -o output.exe output.S
+output.exe
 echo The program has returned: %errorlevel%
 pause

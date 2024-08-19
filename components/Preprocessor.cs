@@ -54,9 +54,6 @@ namespace Components
             }
 
             string text = string.Join("\n", strings);
-
-            File.WriteAllText(filePath + "_preprocessed.c", text);
-
             return text;
         }
     }
