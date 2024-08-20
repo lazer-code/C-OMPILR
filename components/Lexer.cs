@@ -78,25 +78,25 @@ namespace Components
 
 	class Condition
 	{
-		Func<string, int, bool> Expression;
-		public Condition (Func<string, int, bool> expression)
+		Func<string, int, bool, bool, bool> Expression;
+		public Condition (Func<string, int, bool, bool, bool> expression)
 		{
 			Expression = expression;
 		}
 
-		public bool matches(string token, int level) => Expression(token, level);
+		public bool matches(string token, int level, bool finishedParams, bool goingOverArgs) => Expression(token, level, finishedParams, goingOverArgs);
 	}
 
 	class TokenClassifier : Condition
 	{
 		TokenType RetVal;
-		public TokenClassifier (TokenType retVal, Func<string, int, bool> expression) : base (expression)
+		public TokenClassifier (TokenType retVal, Func<string, int, bool, bool, bool> expression) : base (expression)
 		{
 			RetVal = retVal;
 		}
 
 		public TokenType GetTokenType () => RetVal;
-		public new TokenType matches(string token, int level) => base.matches(token, level) ? RetVal : TokenType.Unknown;
+		public new TokenType matches(string token, int level, bool finishedParams, bool goingOverArgs) => base.matches(token, level, finishedParams, goingOverArgs) ? RetVal : TokenType.Unknown;
 	}
 
 	class Lexer
@@ -106,19 +106,20 @@ namespace Components
 
 		private static void addConditions()
 		{
-			conditions.Add(new TokenClassifier(TokenType.Identifier_var, (string value, int level) =>ClassificationHelper.IsIdentifier(value) && !value.Contains('(')));
-			conditions.Add(new TokenClassifier(TokenType.Assignment, (string value, int level) => value == "="));
-			conditions.Add(new TokenClassifier(TokenType.Number, (string value, int level) => ClassificationHelper.IsNumeric(value)));
-			conditions.Add(new TokenClassifier(TokenType.Keyword, (string value, int level) => ClassificationHelper.IsKeyword(value)));
-			conditions.Add(new TokenClassifier(TokenType.Operator, (string value, int level) => ClassificationHelper.IsOperator(value)));
-			conditions.Add(new TokenClassifier(TokenType.String, (string value, int level) => value.Contains('"')));
-
+			conditions.Add(new TokenClassifier(TokenType.Identifier_var, (string value, int level, bool finishedParams, bool goingOverArgs) => ClassificationHelper.IsIdentifier(value) && !value.Contains('(')));
+			conditions.Add(new TokenClassifier(TokenType.Assignment, (string value, int level, bool finishedParams, bool goingOverArgs) => value == "="));
+			conditions.Add(new TokenClassifier(TokenType.Number, (string value, int level, bool finishedParams, bool goingOverArgs) => ClassificationHelper.IsNumeric(value)));
+			conditions.Add(new TokenClassifier(TokenType.Keyword, (string value, int level, bool finishedParams, bool goingOverArgs) => level != 0 && ClassificationHelper.IsKeyword(value)));
+			conditions.Add(new TokenClassifier(TokenType.Operator, (string value, int level, bool finishedParams, bool goingOverArgs) => ClassificationHelper.IsOperator(value)));
+			conditions.Add(new TokenClassifier(TokenType.String, (string value, int level, bool finishedParams, bool goingOverArgs) => value.Contains('"')));
+			conditions.Add(new TokenClassifier(TokenType.Identifier_var, (string value, int level, bool finishedParams, bool goingOverArgs) => level == 0 && !value.Contains('(') && !finishedParams && !value.Equals(")")));
+			conditions.Add(new TokenClassifier(TokenType.Keyword, (string value, int level, bool finishedParams, bool goingOverArgs) => level == 0 && !value.Contains('(') && finishedParams)); 
 		}
 
-		static TokenType GetTokenType(string tokenValue, int blockIndex = 0)
+		static TokenType GetTokenType(string tokenValue, int blockIndex = 0, bool finishedParams = true, bool goingOverArgs = false)
 		{
 			var returnType = from condition in conditions // loop over all the conditions
-			where condition.matches(tokenValue, blockIndex) != TokenType.Unknown // and if one of them is a match
+			where condition.matches(tokenValue, blockIndex, finishedParams, goingOverArgs) != TokenType.Unknown // and if one of them is a match
 			select condition;	// happy
 		
 			#region Debugging Output
@@ -148,7 +149,7 @@ namespace Components
 				if (currentParent == null)
 					continue;
 
-				if((type = GetTokenType(tokens[i].value)) != TokenType.Unknown)
+				if((type = GetTokenType(tokens[i].value, blockIndex, finishedParams, goingOverArgs)) != TokenType.Unknown)
 				{
 					currentParent.AddChild(new TokenTreeNode(type, tokens[i].value, goingOverArgs));
 				}
@@ -183,24 +184,11 @@ namespace Components
 					else if (tokens[i].value == ")" && blockIndex != 0)
 						goingOverArgs = false;
 
+
 					else if (blockIndex == 0)
 					{
 						if (!tokens[i].value.Contains('('))
 						{
-							if (!finishedParams)
-							{
-								if (!tokens[i].value.Equals(")"))
-								{
-									// finding function parameters
-									currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_var, tokens[i].value, true));
-								}
-							}
-
-							else
-							{
-								// finding function modifiers
-								currentParent.AddChild(new TokenTreeNode(TokenType.Keyword, tokens[i].value, false));
-							}
 						}
 						else if (tokens[i].value.Contains(')'))
 						{
