@@ -2,13 +2,6 @@ namespace Components
 {
 	class Helper
 	{
-		public static void ColourPrint(string input, ConsoleColor colour)
-		{
-			Console.ForegroundColor =colour;
-			Console.WriteLine(input);
-			Console.ResetColor();
-		}
-		
 		/// <summary>
 		/// function recursively finds identifiers in the AST and adds every unique one to a list
 		/// </summary>

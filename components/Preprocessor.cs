@@ -7,7 +7,7 @@ namespace Components
             // read all content from file in filePath
             List<string> strings= File.ReadAllLines(filePath).ToList();
 
-            Helper.ColourPrint("The source file:", ConsoleColor.Blue);
+            Debug.Output("The source file:", ConsoleColor.Blue);
 
             foreach (string line in strings)
             {
