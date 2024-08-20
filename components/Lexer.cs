@@ -117,15 +117,17 @@ namespace Components
 
 		static TokenType GetTokenType(string tokenValue, int blockIndex = 0)
 		{
-			var returnType = 
-			from condition in conditions where condition.matches(tokenValue, blockIndex) != TokenType.Unknown select condition;
+			var returnType = from condition in conditions // loop over all the conditions
+			where condition.matches(tokenValue, blockIndex) != TokenType.Unknown // and if one of them is a match
+			select condition;	// happy
 		
+			#region Debugging Output
 			if(returnType.Count() > 0)
-			{
-				Console.WriteLine("classified " + returnType.ElementAt(0).GetTokenType().ToString());
-				return returnType.ElementAt(0).GetTokenType();
-			}
-			return TokenType.Unknown;
+				Debug.Output("classified " + returnType.ElementAt(0).GetTokenType().ToString(), ConsoleColor.DarkGray);
+
+			#endregion		
+			
+			return returnType.Count() > 0 ? returnType.ElementAt(0).GetTokenType() : TokenType.Unknown; //return the token type we found (if any), return Unknown if no matches were found
 		}
 
 		public static TokenTreeNode ParseEntryFile(List<Token> tokens)
