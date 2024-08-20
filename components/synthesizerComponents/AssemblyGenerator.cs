@@ -41,6 +41,7 @@ namespace Components
 					"if" => "",
 					"return" => "movl",
 					"int" => "",
+					"void" => "",
 					_ => throw new Exception($"unknown keyword {tk.value}")
 				},
 				TokenType.Body => GetBodyName(),

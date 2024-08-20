@@ -109,6 +109,9 @@ namespace Components
 			conditions.Add(new TokenClassifier(TokenType.Identifier_var, (string value, int level) =>ClassificationHelper.IsIdentifier(value) && !value.Contains('(')));
 			conditions.Add(new TokenClassifier(TokenType.Assignment, (string value, int level) => value == "="));
 			conditions.Add(new TokenClassifier(TokenType.Number, (string value, int level) => ClassificationHelper.IsNumeric(value)));
+			conditions.Add(new TokenClassifier(TokenType.Keyword, (string value, int level) => ClassificationHelper.IsKeyword(value)));
+			conditions.Add(new TokenClassifier(TokenType.Operator, (string value, int level) => ClassificationHelper.IsOperator(value)));
+			conditions.Add(new TokenClassifier(TokenType.String, (string value, int level) => value.Contains('"')));
 
 		}
 
@@ -228,13 +231,6 @@ namespace Components
 							finishedParams = false;
 						}
 					}
-
-					else if(ClassificationHelper.IsKeyword(tokens[i].value))
-						currentParent.AddChild(new TokenTreeNode(TokenType.Keyword, tokens[i].value, false));
-
-					else if(ClassificationHelper.IsOperator(tokens[i].value))
-						currentParent.AddChild(new TokenTreeNode(TokenType.Operator, tokens[i].value, false));
-
 					else if(ClassificationHelper.IsComparison(tokens[i].value))
 					{
 						TokenType ntype = ClassificationHelper.GetComparisonType(tokens[i].value);
@@ -246,13 +242,6 @@ namespace Components
 						// finding function calls
 						currentParent.AddChild(new TokenTreeNode(TokenType.Call, tokens[i - 1].value, false));
 						goingOverArgs = true;
-					}
-
-					if (tokens[i].value.Contains('"') && currentParent != null)
-					{
-						// finding a string
-						int startIndex = tokens[i].value.IndexOf('"'), endIndex = tokens[i].value.LastIndexOf('"');
-						currentParent.AddChild(new TokenTreeNode(TokenType.String, tokens[i].value.Substring(startIndex, endIndex - startIndex + 1), goingOverArgs));
 					}
 				}
 			}
