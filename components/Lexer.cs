@@ -1,3 +1,7 @@
+using System.Linq.Expressions;
+using System.Net;
+using System.Runtime.Versioning;
+
 namespace Components
 {
 	class ClassificationHelper
@@ -72,10 +76,58 @@ namespace Components
 		public override string ToString() => "" + (this.isArgument ? " [argument] " : " ") + this.type.ToString() + "(" + this.content + ")";
 	}
 
+	class Condition
+	{
+		Func<string, int, bool> Expression;
+		public Condition (Func<string, int, bool> expression)
+		{
+			Expression = expression;
+		}
+
+		public bool matches(string token, int level) => Expression(token, level);
+	}
+
+	class TokenClassifier : Condition
+	{
+		TokenType RetVal;
+		public TokenClassifier (TokenType retVal, Func<string, int, bool> expression) : base (expression)
+		{
+			RetVal = retVal;
+		}
+
+		public TokenType GetTokenType () => RetVal;
+		public new TokenType matches(string token, int level) => base.matches(token, level) ? RetVal : TokenType.Unknown;
+	}
+
 	class Lexer
 	{
+
+		static List<TokenClassifier> conditions = new List<TokenClassifier>();
+
+		private static void addConditions()
+		{
+			conditions.Add(new TokenClassifier(TokenType.Identifier_var, (string value, int level) =>ClassificationHelper.IsIdentifier(value) && !value.Contains('(')));
+			conditions.Add(new TokenClassifier(TokenType.Assignment, (string value, int level) => value == "="));
+			conditions.Add(new TokenClassifier(TokenType.Number, (string value, int level) => ClassificationHelper.IsNumeric(value)));
+
+		}
+
+		static TokenType GetTokenType(string tokenValue, int blockIndex = 0)
+		{
+			var returnType = 
+			from condition in conditions where condition.matches(tokenValue, blockIndex) != TokenType.Unknown select condition;
+		
+			if(returnType.Count() > 0)
+			{
+				Console.WriteLine("classified " + returnType.ElementAt(0).GetTokenType().ToString());
+				return returnType.ElementAt(0).GetTokenType();
+			}
+			return TokenType.Unknown;
+		}
+
 		public static TokenTreeNode ParseEntryFile(List<Token> tokens)
 		{
+			addConditions();
 			TokenTreeNode root = new(TokenType.Unknown, "root", false);
 			TokenTreeNode currentParent = root;
 
@@ -83,22 +135,18 @@ namespace Components
 			bool finishedParams = true;
 			bool goingOverArgs = false;
 
+			
+			TokenType type;
+
 			for (int i = 0; i < tokens.Count; i++)
 			{
 				if (currentParent == null)
 					continue;
 
-				// Checking for variables identigication
-				if (ClassificationHelper.IsIdentifier(tokens[i].value) && !tokens[i + 1].value.Contains('('))
-					currentParent.AddChild(new TokenTreeNode(TokenType.Identifier_var, tokens[i].value, goingOverArgs));
-
-				// Checking for variable assignment
-				else if (tokens[i].value == "=")
-					currentParent.AddChild(new TokenTreeNode(TokenType.Assignment, tokens[i].value, goingOverArgs));
-
-				// Checking for numeric values
-				else if (ClassificationHelper.IsNumeric(tokens[i].value))
-					currentParent.AddChild(new TokenTreeNode(TokenType.Number, tokens[i].value, goingOverArgs));
+				if((type = GetTokenType(tokens[i].value)) != TokenType.Unknown)
+				{
+					currentParent.AddChild(new TokenTreeNode(type, tokens[i].value, goingOverArgs));
+				}
 
 				else if (tokens[i].value.Trim() != "")
 				{	
@@ -189,7 +237,7 @@ namespace Components
 
 					else if(ClassificationHelper.IsComparison(tokens[i].value))
 					{
-						TokenType type = ClassificationHelper.GetComparisonType(tokens[i].value);
+						TokenType ntype = ClassificationHelper.GetComparisonType(tokens[i].value);
 						currentParent.AddChild(new TokenTreeNode(type, tokens[i].value, false));
 					}
 
