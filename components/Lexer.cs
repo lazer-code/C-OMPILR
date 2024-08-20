@@ -238,7 +238,7 @@ namespace Components
 					else if(ClassificationHelper.IsComparison(tokens[i].value))
 					{
 						TokenType ntype = ClassificationHelper.GetComparisonType(tokens[i].value);
-						currentParent.AddChild(new TokenTreeNode(type, tokens[i].value, false));
+						currentParent.AddChild(new TokenTreeNode(ntype, tokens[i].value, false));
 					}
 
 					else if (tokens[i].value.Contains('(') && !ClassificationHelper.IsKeyword(tokens[i - 1].value))
