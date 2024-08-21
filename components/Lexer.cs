@@ -106,14 +106,15 @@ namespace Components
 
 		private static void addConditions()
 		{
-			conditions.Add(new TokenClassifier(TokenType.Identifier_var, (string value, int level, bool finishedParams, bool goingOverArgs) => ClassificationHelper.IsIdentifier(value) && !value.Contains('(')));
 			conditions.Add(new TokenClassifier(TokenType.Assignment, (string value, int level, bool finishedParams, bool goingOverArgs) => value == "="));
 			conditions.Add(new TokenClassifier(TokenType.Number, (string value, int level, bool finishedParams, bool goingOverArgs) => ClassificationHelper.IsNumeric(value)));
 			conditions.Add(new TokenClassifier(TokenType.Keyword, (string value, int level, bool finishedParams, bool goingOverArgs) => level != 0 && ClassificationHelper.IsKeyword(value)));
 			conditions.Add(new TokenClassifier(TokenType.Operator, (string value, int level, bool finishedParams, bool goingOverArgs) => ClassificationHelper.IsOperator(value)));
 			conditions.Add(new TokenClassifier(TokenType.String, (string value, int level, bool finishedParams, bool goingOverArgs) => value.Contains('"')));
-			conditions.Add(new TokenClassifier(TokenType.Identifier_var, (string value, int level, bool finishedParams, bool goingOverArgs) => level == 0 && !value.Contains('(') && !finishedParams && !value.Equals(")")));
 			conditions.Add(new TokenClassifier(TokenType.Keyword, (string value, int level, bool finishedParams, bool goingOverArgs) => level == 0 && !value.Contains('(') && finishedParams)); 
+			conditions.Add(new TokenClassifier(TokenType.Identifier_var, (string value, int level, bool finishedParams, bool goingOverArgs) => level == 0 && !value.Contains('(') && !finishedParams && value != "{" &&!ClassificationHelper.IsKeyword(value) && !value.Equals(")")));
+			conditions.Add(new TokenClassifier(TokenType.Identifier_var, (string value, int level, bool finishedParams, bool goingOverArgs) => ClassificationHelper.IsIdentifier(value) && !value.Contains('(')));
+
 		}
 
 		static TokenType GetTokenType(string tokenValue, int blockIndex = 0, bool finishedParams = true, bool goingOverArgs = false)
@@ -128,7 +129,7 @@ namespace Components
 
 			#endregion		
 			
-			return returnType.Count() > 0 ? returnType.ElementAt(0).GetTokenType() : TokenType.Unknown; //return the token type we found (if any), return Unknown if no matches were found
+			return returnType.Count() > 0 ? returnType.ElementAt(returnType.Count() - 1).GetTokenType() : TokenType.Unknown; //return the token type we found (if any), return Unknown if no matches were found
 		}
 
 		public static TokenTreeNode ParseEntryFile(List<Token> tokens)
@@ -154,7 +155,7 @@ namespace Components
 					currentParent.AddChild(new TokenTreeNode(type, tokens[i].value, goingOverArgs));
 				}
 
-				else if (tokens[i].value.Trim() != "")
+				if (tokens[i].value.Trim() != "")
 				{	
 					// Checking for starting a body of condition or function
 					if (tokens[i].value == "{")
