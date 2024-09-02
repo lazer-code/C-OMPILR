@@ -1,4 +1,11 @@
-﻿namespace Components
+﻿using cOMPILR.Components.Synthesis;
+using cOMPILR.Components.LexicalAnalysis;
+using cOMPILR.Components.Preprocessing;
+using cOMPILR.Components.SemanticAnalysis;
+using cOMPILR.Components.Tokenization;
+using cOMPILR.Components;
+
+namespace cOMPILR.ProgramEntry
 {
 	class Entry
 	{

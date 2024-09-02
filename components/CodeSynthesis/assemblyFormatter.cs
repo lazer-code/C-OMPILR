@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Components
+namespace cOMPILR.Components.Synthesis
 {
 	class AssemblyFormatter
 	{

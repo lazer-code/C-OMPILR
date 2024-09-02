@@ -1,4 +1,4 @@
-namespace Components
+namespace cOMPILR.Components.Synthesis
 {
 	/// <summary>
 	/// for the actual assembly generation part of this class, check out AssemblyGenerator.cs

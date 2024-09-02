@@ -1,4 +1,4 @@
-namespace Components
+namespace cOMPILR.Components.Synthesis
 {
 	partial class Synthesizer
 	{

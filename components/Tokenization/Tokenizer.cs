@@ -1,4 +1,4 @@
-namespace Components
+namespace cOMPILR.Components.Tokenization
 {
 	public class TokenizationHelper(string input)
     {

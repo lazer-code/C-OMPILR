@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Runtime.Versioning;
 
-namespace Components
+namespace cOMPILR.Components.LexicalAnalysis
 {
 	class ClassificationHelper
 	{

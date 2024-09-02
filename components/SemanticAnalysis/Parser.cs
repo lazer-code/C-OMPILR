@@ -1,4 +1,4 @@
-namespace Components
+namespace cOMPILR.Components.SemanticAnalysis
 {
     // a = b + c * d / 4
     // tmp = c * d

@@ -1,4 +1,4 @@
-namespace Components
+namespace cOMPILR
 {
     public static class Extensions
     {
