@@ -8,8 +8,11 @@ namespace cOMPILR.Components.LexicalAnalysis
 	{
 		// C reserved words, see https://en.cppreference.com/w/c/keyword
 		static readonly List<string> keywords = ["alignas", "alignof", "auto", "bool", "break", "case", "char", "const", "constexpr", "continue", "default", "do", "double", "else", "enum", "extern", "false", "float", "for", "goto", "if", "inline", "int", "long", "nullptr", "register", "restrict", "return", "short", "signed", "sizeof", "static", "static_assert", "struct", "switch", "thread_local", "true", "typedef", "typeof", "typeof_unqual", "union", "usigned", "void", "volatiole", "while"];
-		static readonly List<string> operators = ["+", "*", "-", "/", "%"];
+		static readonly List<string> operators = ["+", "*", "-", "/", "%", "<<", ">>", "&", "|", "^", "~", "!"];
+		
+		// TODO: turn this to a Dictionary<String, TokenType> and remove the return switch
 		static readonly List<string> comparisonOperators = ["==", "!=", ">=", "<=", ">", "<"];
+		
 		public static bool IsIdentifier(string tokenValue)
 		{
 			tokenValue = tokenValue.Trim();

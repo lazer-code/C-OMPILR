@@ -9,6 +9,7 @@ namespace cOMPILR.Components.Preprocessing
 
             Debug.Output("The source file:", ConsoleColor.Blue);
 
+            // TODO: remove comments & chack for line terminations.
             foreach (string line in strings)
             {
                 Console.WriteLine(line);
