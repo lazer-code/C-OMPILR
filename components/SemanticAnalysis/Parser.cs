@@ -1,5 +1,9 @@
 namespace Components
 {
+    // a = b + c * d / 4
+    // tmp = c * d
+    // tmp1 = b + tmp
+    // a = tmp1 / 4 
     class Parser
     {
         static HashSet<TokenType> conditionsOperators = [TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThan, 
