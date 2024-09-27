@@ -1,2 +1,11 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+namespace lInker
+{
+	class Entry
+	{
+		public static void Main(string[] args)
+		{
+			COFFObjectFile cof = new(@"test.o");
+			cof.parse();
+		}
+	}
+}
