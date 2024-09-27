@@ -65,6 +65,11 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
+# compiler output
+*_preprocessed.c
+output.*
+tests/output.*
+
 # Tye
 .tye/
 
