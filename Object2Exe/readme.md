@@ -1,0 +1,1 @@
+in this section of the project we turn the O files our compiler produced and we link them, building exe files out of them

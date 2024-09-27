@@ -1,0 +1,1 @@
+in this section of the project we turn the asm files our compiler produced and we compile them, building object files out of them

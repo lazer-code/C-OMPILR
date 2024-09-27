@@ -1,0 +1,1 @@
+in this section of the project we turn the c files our compiler was provided and we compile them, building assembly files out of them
